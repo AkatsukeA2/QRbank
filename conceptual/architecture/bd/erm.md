@@ -11,6 +11,7 @@
 **kyc_verification** (id, user_id,  document_type, document_number, document_image_front, document_image_back, status, verified_at); </br>
 **guardian** (id, name, email, phone, created_at); </br>
 **payment** (id, qr_code_id, payer_wallet_id, receiver_wallet_id, amount, status, created_at); </br>
+**device** (id, device_info, last_access, created_at); </br>
 
 ---
 
