@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
 %% ENTIDADES PRINCIPAIS QRbank
 
@@ -121,3 +122,4 @@ classDiagram
     QRCode "0..1" -- "1" Payment : usedIn
 
     Guardian "1" -- "0..*" User : guardianOf
+```

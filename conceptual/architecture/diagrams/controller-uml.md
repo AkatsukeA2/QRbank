@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
 %% CONTROLLERS QRbank COM DTOs
 
@@ -99,3 +100,4 @@ classDiagram
         +restore(id: Long) : Mono<ResponseEntity<Void>>
         +hardDelete(id: Long) : Mono<ResponseEntity<Void>>
     }
+```
