@@ -45,7 +45,7 @@ Mobile App (Flutter)
 Backend API (Spring Boot WebFlux)
 POST /api/kyc/scan-document
 
-↓ HTTP POST (Reactive WebClient + Resilience4j)
+↓ HTTP POST (Reactive WebClient + Resilience)
 
 OCR Service (Python FastAPI + PaddleOCR-VL)
 POST /ocr/v1/extract-identity
