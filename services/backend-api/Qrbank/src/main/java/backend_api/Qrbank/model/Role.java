@@ -1,12 +1,16 @@
 package backend_api.Qrbank.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table("role")
 public class Role {
 
@@ -14,7 +18,7 @@ public class Role {
     private Long id;
 
     @Column("role_name")
-    private RoleName role;
+    private RoleName roleName;
 
     @Column("description")
     private String description;
@@ -23,6 +27,6 @@ public class Role {
     private LocalDateTime createdAt;
 
 
-    public Role(Integer id, RoleName role, String description, LocalDateTime now) {
-    }
+
+
 }

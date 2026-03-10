@@ -30,7 +30,7 @@ public class RoleController {
     }
 
     @GetMapping("/{name}")
-    public Mono<RoleResponseDTO> getRoleById(@PathVariable String name) {
+    public Mono<RoleResponseDTO> getRoleByName(@PathVariable String name) {
         return roleService.getRoleByName(name);
     }
 
