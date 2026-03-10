@@ -41,7 +41,7 @@ public class RoleService {
     public Mono<RoleResponseDTO> updateRole(Long id, RoleRequestDTO request) {
         return repository.findById(id)
                 .flatMap(existing -> {
-                    existing.setRole(request.role());
+                    existing.setRoleName(request.role());
                     existing.setDescription(request.description());
                     return repository.save(existing);
                 })

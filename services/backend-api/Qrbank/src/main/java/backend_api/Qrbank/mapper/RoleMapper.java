@@ -14,7 +14,7 @@ public class RoleMapper {
     public static RoleResponseDTO toResponseDTO(Role role){
         return new RoleResponseDTO(
                 role.getId(),
-                role.getRole(),
+                role.getRoleName(),
                 role.getDescription(),
                 role.getCreatedAt()
         );
