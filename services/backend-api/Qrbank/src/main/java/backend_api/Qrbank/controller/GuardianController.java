@@ -43,7 +43,7 @@ public class GuardianController {
 
     //update
 
-    @PostMapping("/{id}")
+    @PutMapping ("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<GuardianResponseDTO>> update(@PathVariable Long id, @RequestBody GuardianRequestDTO requestDTO){
         return service.updateGuardian(id,requestDTO).map(ResponseEntity::ok);
@@ -62,6 +62,14 @@ public class GuardianController {
     public Mono<ResponseEntity<GuardianResponseDTO>> hardDelete(@PathVariable Long id){
         return service.hardDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
     }
+
+    // get by email
+    @GetMapping("/by-email")
+    @ResponseStatus(HttpStatus.FOUND)
+    public Mono<ResponseEntity<GuardianResponseDTO>> getByEmail(@RequestParam String email){
+        return service.findGuardianByEmail(email).map(ResponseEntity::ok);
+    }
+
 
 
 

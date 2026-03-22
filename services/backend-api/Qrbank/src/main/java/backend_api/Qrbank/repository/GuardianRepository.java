@@ -12,5 +12,5 @@ import reactor.core.publisher.Mono;
 public interface GuardianRepository extends ReactiveCrudRepository<Guardian, Long> {
     Mono<Boolean> existsByEmail(String email);
 
-    Guardian findByEmail(String email);
+    Mono<Guardian> findByEmail(String email);
 }
