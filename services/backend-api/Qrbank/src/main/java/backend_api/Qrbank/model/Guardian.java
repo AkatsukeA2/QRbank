@@ -40,7 +40,7 @@ public class Guardian {
 
     @NotBlank
     @Column("relationship")
-    private Relationship relationship;
+    private GuardianRelationship guardianRelationship;
 
     @NotBlank
     @Column("created_at")
