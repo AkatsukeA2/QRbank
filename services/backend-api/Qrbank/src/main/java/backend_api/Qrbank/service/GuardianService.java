@@ -37,14 +37,9 @@ public class GuardianService {
     // find by id
 
     public Mono<GuardianResponseDTO> findGuardianByID(Long id){
-
-        Guardian guardian = repository.findById(id)
-                .blockOptional()
-                .orElseThrow(()->new RuntimeException("Guardian not found"));
-
-        if (guardian.getDeletedAt() != null) throw new RuntimeException("guardian is deleted");
-
-        return repository.findById(guardian.getId()).map(GuardianMapper::toResponseDTO);
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Guardian not found")))
+                .map(GuardianMapper::toResponseDTO);
     }
 
     // find all guardians
@@ -57,56 +52,62 @@ public class GuardianService {
 
     public Mono<GuardianResponseDTO> updateGuardian(Long id, GuardianRequestDTO requestDTO){
 
-        Guardian guardian = repository.findById(id)
-                .blockOptional()
-                .orElseThrow(()->new RuntimeException("Guardian not found"));
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Guardian not found")))
+                .flatMap(guardian -> {
 
-        if (guardian.getDeletedAt() != null) throw new RuntimeException("guardian is deleted");
+                    if (guardian.getDeletedAt() != null) {
+                        return Mono.error(new RuntimeException("Guardian is deleted"));
+                    }
 
-        guardian.setFirstName(requestDTO.firstName());
-        guardian.setLastName(requestDTO.lastName());
-        guardian.setEmail(requestDTO.email());
-        guardian.setGuardianRelationship(requestDTO.relationship());
-        guardian.setUpdatedAt(LocalDateTime.now());
+                    guardian.setFirstName(requestDTO.firstName());
+                    guardian.setLastName(requestDTO.lastName());
+                    guardian.setEmail(requestDTO.email());
+                    guardian.setGuardianRelationship(requestDTO.relationship());
+                    guardian.setUpdatedAt(LocalDateTime.now());
 
-        return repository.save(guardian).map(GuardianMapper::toResponseDTO);
-
+                    return repository.save(guardian);
+                })
+                .map(GuardianMapper::toResponseDTO);
     }
 
     // soft delete
 
     public Mono<Void> softDelete(Long id){
+         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Guardian not found"))).flatMap(guardian -> {
 
-        Guardian guardian = repository.findById(id)
-                .blockOptional()
-                .orElseThrow(()->new RuntimeException("Guardian not found"));
+             guardian.setDeletedAt(LocalDateTime.now());
+             return repository.save(guardian);
 
-        guardian.setDeletedAt(LocalDateTime.now());
-        repository.save(guardian);
-        return null;
+         }).then();
+
     }
 
     // hard delete
 
     public Mono<Void> hardDelete(Long id){
-        Guardian guardian = repository.findById(id)
-                .blockOptional()
-                .orElseThrow(()->new RuntimeException("Guardian not found"));
 
-        // just when user crud get done
-       // if (userRepository.existByGuardianID(id)) throw new RuntimeException("this guardian is linked to users, cannot delete ");
+        return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Guardian not found"))).flatMap(guardian -> {
 
-        repository.deleteById(id);
-        return null;
+            // just when user crud get done
+            // if (userRepository.existByGuardianID(id)) throw new RuntimeException("this guardian is linked to users, cannot delete ");
+
+            return repository.deleteById(id);
+
+        }).then();
+
+
+
+
     }
 
     // find guardian by email
 
     public Mono<GuardianResponseDTO> findGuardianByEmail(String email){
 
-        Guardian guardian = repository.findByEmail(email);
-        if (guardian == null)throw new RuntimeException("Guardian not found");
-        return repository.findById(guardian.getId()).map(GuardianMapper::toResponseDTO);
+        return repository.findByEmail(email)
+                    .switchIfEmpty(Mono.error(new RuntimeException("Guardian not found")))
+                    .map(GuardianMapper::toResponseDTO);
 
     }
 
