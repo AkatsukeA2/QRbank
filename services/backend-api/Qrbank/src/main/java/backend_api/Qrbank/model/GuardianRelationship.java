@@ -1,6 +1,6 @@
 package backend_api.Qrbank.model;
 
-public enum Relationship {
+public enum GuardianRelationship {
 
     FATHER,
     MOTHER,
