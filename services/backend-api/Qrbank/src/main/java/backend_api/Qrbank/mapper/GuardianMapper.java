@@ -3,9 +3,11 @@ package backend_api.Qrbank.mapper;
 import backend_api.Qrbank.dto.GuardianRequestDTO;
 import backend_api.Qrbank.dto.GuardianResponseDTO;
 import backend_api.Qrbank.model.Guardian;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Component
 public class GuardianMapper {
 
     public static GuardianResponseDTO toResponseDTO(Guardian guardian){
