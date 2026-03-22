@@ -57,7 +57,7 @@ public class GuardianController {
     }
 
     //hard delete
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/hard")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<GuardianResponseDTO>> hardDelete(@PathVariable Long id){
         return service.hardDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
