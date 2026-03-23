@@ -8,6 +8,7 @@ public record RoleResponseDTO(
         Long id,
         RoleName role,
         String description,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime deletedAt
 ) {
 }
