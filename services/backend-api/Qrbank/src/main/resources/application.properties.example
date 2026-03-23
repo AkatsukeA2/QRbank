@@ -1,4 +1,0 @@
-spring.application.name=Qrbank
-spring.r2dbc.url=r2dbc:mysql://localhost:3306/YourDataBase?serverTimezone=UTC
-spring.r2dbc.username=yourUser
-spring.r2dbc.password=yourPassWord

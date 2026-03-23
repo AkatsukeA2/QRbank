@@ -54,7 +54,7 @@ public class UserController {
     }
 
     // restore
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<UserResponseDTO>> restore(@PathVariable Long id){
         return service.restoreUser(id).then(Mono.just(ResponseEntity.noContent().build()));
