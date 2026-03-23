@@ -103,6 +103,16 @@ public class UserService {
                 }).then();
     }
 
+    // restore
+    public Mono<Void> restoreUser(Long id){
+        return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("User not found")))
+                .flatMap(user -> {
+
+                    user.setDeletedAt(null);
+                    return repository.save(user);
+                }).then();
+    }
+
     // hard delete
     public Mono<Void> hardDelete(Long id){
         return repository.deleteById(id);
