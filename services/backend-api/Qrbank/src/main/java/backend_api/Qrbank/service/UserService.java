@@ -4,6 +4,8 @@ import backend_api.Qrbank.dto.UserRequestDTO;
 import backend_api.Qrbank.dto.UserResponseDTO;
 import backend_api.Qrbank.mapper.UserMapper;
 import backend_api.Qrbank.model.User;
+import backend_api.Qrbank.repository.GuardianRepository;
+import backend_api.Qrbank.repository.RoleRepository;
 import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,24 +19,37 @@ import java.time.LocalDateTime;
 public class UserService {
 
     private final UserRepository repository;
+    private final RoleRepository roleRepository;
+    private final GuardianRepository guardianRepository;
+
 
 
     // create user
 
     public Mono<UserResponseDTO> createUser(UserRequestDTO requestDTO){
+
         User user = UserMapper.toEntity(requestDTO);
 
-        return repository.findById(user.getId())
-                .switchIfEmpty(Mono.error(new RuntimeException("Role not found ")))
-                .flatMap(role->{
-                    if (user.getGuardianID() != null){
-                        return repository.findById(user.getGuardianID())
-                                .switchIfEmpty(Mono.error(new RuntimeException("Guardian not found")))
-                                .then(repository.save(user).map(UserMapper::toResponseDTO));
-                    }
-                    return repository.save(user).map(UserMapper::toResponseDTO);
-                });
 
+        if (user.getRoleID() == null) {
+            return Mono.error(new RuntimeException("RoleId is required"));
+        }
+
+        return roleRepository.findById(user.getRoleID())
+                .switchIfEmpty(Mono.error(new RuntimeException("Role not found")))
+                .flatMap(role -> {
+
+
+                    if (user.getGuardianID() != null) {
+                        return guardianRepository.findById(user.getGuardianID())
+                                .switchIfEmpty(Mono.error(new RuntimeException("Guardian not found")))
+                                .then(repository.save(user)
+                                        .map(UserMapper::toResponseDTO));
+                    }
+
+                    return repository.save(user)
+                            .map(UserMapper::toResponseDTO);
+                });
     }
 
     // find by user id
@@ -54,10 +69,10 @@ public class UserService {
         return repository.findById(id).filter(user -> user.getDeletedAt() == null)
                 .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
                 .flatMap(user -> {
-                    user.setFirstName(requestDTO.fistName());
+                    user.setFirstName(requestDTO.firstName());
                     user.setLastName(requestDTO.lastName());
                     user.setEmail(requestDTO.email());
-                    user.setPassWord(requestDTO.passWord());
+                    user.setPassword(requestDTO.password());
                     user.setPhoneNumber(requestDTO.phoneNumber());
                     user.setRoleID(requestDTO.roleId());
                     user.setGuardianID(requestDTO.guardianID());
@@ -72,7 +87,7 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
                 .flatMap(user -> {
 
-                    user.setPassWord(newPassWord);
+                    user.setPassword(newPassWord);
                     user.setUpdatedAt(LocalDateTime.now());
                     return repository.save(user).map(UserMapper::toResponseDTO);
                 });
@@ -84,16 +99,13 @@ public class UserService {
                 .flatMap(user -> {
 
                     user.setDeletedAt(LocalDateTime.now());
-                    return repository.save(user).map(UserMapper::toResponseDTO);
+                    return repository.save(user);
                 }).then();
     }
 
     // hard delete
     public Mono<Void> hardDelete(Long id){
-        return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("User not found")))
-                .flatMap(user -> {
+        return repository.deleteById(id);
 
-                    return repository.deleteById(user.getId());
-                });
     }
 }
