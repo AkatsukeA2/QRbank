@@ -1,15 +1,15 @@
 package backend_api.Qrbank.mapper;
 
 import backend_api.Qrbank.dto.UserRequestDTO;
-import backend_api.Qrbank.dto.UserRespondDTO;
+import backend_api.Qrbank.dto.UserResponseDTO;
 import backend_api.Qrbank.model.User;
 
 import java.time.LocalDateTime;
 
 public class UserMapper {
 
-    public static UserRespondDTO toRespondDTO(User user){
-       return new UserRespondDTO(
+    public static UserResponseDTO toResponseDTO(User user){
+       return new UserResponseDTO(
                user.getId(),
                user.getFirstName(),
                user.getLastName(),
