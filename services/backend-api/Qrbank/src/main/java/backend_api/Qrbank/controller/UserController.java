@@ -53,6 +53,13 @@ public class UserController {
         return service.softDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
+    // restore
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseEntity<UserResponseDTO>> restore(@PathVariable Long id){
+        return service.restoreUser(id).then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
     // hard delete
     @DeleteMapping("/{id}/hard")
     @ResponseStatus(HttpStatus.OK)
