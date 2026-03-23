@@ -9,5 +9,5 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface UserRepository extends ReactiveCrudRepository<User, Long> {
 
-   Mono<Boolean> existByGuardianID(Long id);
+   Mono<Boolean> existsByGuardianID(Long id);
 }
