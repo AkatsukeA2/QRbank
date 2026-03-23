@@ -14,7 +14,7 @@ public class UserMapper {
                user.getFirstName(),
                user.getLastName(),
                user.getEmail(),
-               user.getPassWord(),
+               user.getPassword(),
                user.getPhoneNumber(),
                user.getRoleID(),
                user.getGuardianID(),
@@ -27,11 +27,11 @@ public class UserMapper {
     public static User toEntity(UserRequestDTO requestDTO){
         return new User(
                 null,
-                requestDTO.fistName(),
+                requestDTO.firstName(),
                 requestDTO.lastName(),
                 requestDTO.email(),
                 requestDTO.phoneNumber(),
-                requestDTO.passWord(),
+                requestDTO.password(),
                 requestDTO.roleId(),
                 requestDTO.guardianID(),
                 LocalDateTime.now(),

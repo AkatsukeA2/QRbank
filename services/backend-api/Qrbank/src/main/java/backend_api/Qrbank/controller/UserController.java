@@ -29,14 +29,12 @@ public class UserController {
 
     // get users by id
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
     public Mono<ResponseEntity<UserResponseDTO>> getByID(@PathVariable Long id){
         return service.findByUSerID(id).map(ResponseEntity::ok);
     }
 
     // get all users
     @GetMapping
-    @ResponseStatus(HttpStatus.FOUND)
     public Flux<UserResponseDTO> getAllUsers(){
         return service.findAllUser();
     }
@@ -63,7 +61,7 @@ public class UserController {
     }
 
     //
-    @PatchMapping("/{id}/{password}")
+    @PatchMapping("/{id}/{newPassWord}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<UserResponseDTO>> changePassWord(@PathVariable Long id,@PathVariable String newPassWord){
         return service.updateUserPassWor(id,newPassWord).then(Mono.just(ResponseEntity.noContent().build()));

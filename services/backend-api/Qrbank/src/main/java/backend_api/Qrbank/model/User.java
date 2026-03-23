@@ -40,7 +40,7 @@ public class User {
 
     @NotBlank
     @Column("password")
-    private String passWord;
+    private String password;
 
     @NotBlank
     @Column("role_id")

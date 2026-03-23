@@ -4,11 +4,9 @@ import backend_api.Qrbank.dto.GuardianRequestDTO;
 import backend_api.Qrbank.dto.GuardianResponseDTO;
 import backend_api.Qrbank.mapper.GuardianMapper;
 import backend_api.Qrbank.model.Guardian;
-import backend_api.Qrbank.model.User;
 import backend_api.Qrbank.repository.GuardianRepository;
 import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -88,7 +86,7 @@ public class GuardianService {
     public Mono<Void> hardDelete(Long id){
 
         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Guardian not found"))).flatMap(guardian -> {
-            Mono<Object> user = userRepository.existByGuardianID(id)
+            Mono<Object> user = userRepository.existsByGuardianID(id)
                     .switchIfEmpty(Mono.error(new RuntimeException("this guardian is linked to users, cannot delete ")))
                     .flatMap(exist ->{
                        return repository.deleteById(id);
