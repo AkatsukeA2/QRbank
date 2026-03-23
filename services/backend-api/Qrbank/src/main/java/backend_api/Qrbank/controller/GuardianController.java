@@ -56,6 +56,13 @@ public class GuardianController {
         return service.softDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
+    //restore
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseEntity<GuardianResponseDTO>> restore(@PathVariable Long id){
+        return service.restoreGuardian(id).then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
     //hard delete
     @DeleteMapping("/{id}/hard")
     @ResponseStatus(HttpStatus.OK)
