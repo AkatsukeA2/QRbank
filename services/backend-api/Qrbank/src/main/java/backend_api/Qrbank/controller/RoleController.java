@@ -52,13 +52,13 @@ public class RoleController {
     }
 
     // restore
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<GuardianResponseDTO>> restore(@PathVariable Long id){
         return roleService.restoreRole(id).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/hard")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteRole(@PathVariable Long id) {
         return roleService.deleteRole(id);
