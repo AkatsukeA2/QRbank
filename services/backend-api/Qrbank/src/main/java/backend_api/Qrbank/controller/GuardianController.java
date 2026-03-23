@@ -57,7 +57,7 @@ public class GuardianController {
     }
 
     //restore
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<GuardianResponseDTO>> restore(@PathVariable Long id){
         return service.restoreGuardian(id).then(Mono.just(ResponseEntity.noContent().build()));
