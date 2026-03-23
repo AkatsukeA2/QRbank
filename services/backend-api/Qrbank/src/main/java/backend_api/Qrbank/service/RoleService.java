@@ -47,7 +47,30 @@ public class RoleService {
                 })
                 .map(RoleMapper::toResponseDTO);
     }
+    // soft delete
 
+    public Mono<Void> softDelete(Long id){
+        return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Role not found"))).flatMap(role -> {
+
+            role.setDeletedAt(LocalDateTime.now());
+            return repository.save(role);
+
+        }).then();
+
+    }
+
+    // restore role
+
+    public Mono<Void> restoreRole(Long id){
+        return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Role not found"))).flatMap(role -> {
+
+            role.setDeletedAt(null);
+            return repository.save(role);
+
+        }).then();
+
+    }
+    // hard delete
     public Mono<Void> deleteRole(Long id){
         return repository.deleteById(id);
     }
@@ -56,6 +79,8 @@ public class RoleService {
         return repository.findByRoleName(roleName)
                 .map(RoleMapper::toResponseDTO);
     }
+
+
 
 
 
