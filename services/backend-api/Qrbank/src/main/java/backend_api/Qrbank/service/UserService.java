@@ -44,7 +44,7 @@ public class UserService {
     }
 
     // find all users
-    public Flux<UserResponseDTO> findAllUSer(){
+    public Flux<UserResponseDTO> findAllUser(){
         return repository.findAll()
                 .filter(user -> user.getDeletedAt() == null).map(UserMapper::toResponseDTO);
     }
