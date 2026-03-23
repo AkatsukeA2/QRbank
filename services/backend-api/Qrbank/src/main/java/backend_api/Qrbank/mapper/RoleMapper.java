@@ -3,10 +3,12 @@ package backend_api.Qrbank.mapper;
 import backend_api.Qrbank.dto.RoleRequestDTO;
 import backend_api.Qrbank.dto.RoleResponseDTO;
 import backend_api.Qrbank.model.Role;
+import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
 
+@Component
 public class RoleMapper {
 
 
