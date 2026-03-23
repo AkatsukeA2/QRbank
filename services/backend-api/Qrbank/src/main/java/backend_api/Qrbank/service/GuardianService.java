@@ -81,6 +81,18 @@ public class GuardianService {
 
     }
 
+    // restore
+
+    public Mono<Void> restoreGuardian(Long id){
+        return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Guardian not found"))).flatMap(guardian -> {
+
+            guardian.setDeletedAt(null);
+            return repository.save(guardian);
+
+        }).then();
+
+    }
+
     // hard delete
 
     public Mono<Void> hardDelete(Long id){
