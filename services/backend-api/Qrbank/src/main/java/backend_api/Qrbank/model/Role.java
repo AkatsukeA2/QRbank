@@ -26,6 +26,10 @@ public class Role {
     @Column("created_at")
     private LocalDateTime createdAt;
 
+    @Column("deleted_at")
+    private LocalDateTime deletedAt;
+
+
 
 
 

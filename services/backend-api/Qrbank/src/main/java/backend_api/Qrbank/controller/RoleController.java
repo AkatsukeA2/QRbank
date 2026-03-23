@@ -1,9 +1,11 @@
 package backend_api.Qrbank.controller;
 
+import backend_api.Qrbank.dto.GuardianResponseDTO;
 import backend_api.Qrbank.dto.RoleRequestDTO;
 import backend_api.Qrbank.dto.RoleResponseDTO;
 import backend_api.Qrbank.service.RoleService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,6 +42,20 @@ public class RoleController {
             @RequestBody RoleRequestDTO request
     ) {
         return roleService.updateRole(id, request);
+    }
+
+    //soft delete
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseEntity<GuardianResponseDTO>> softDelete(@PathVariable Long id){
+        return roleService.softDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
+    // restore
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseEntity<GuardianResponseDTO>> restore(@PathVariable Long id){
+        return roleService.restoreRole(id).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
     @DeleteMapping("/{id}")

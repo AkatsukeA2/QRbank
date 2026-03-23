@@ -18,7 +18,8 @@ public class RoleMapper {
                 role.getId(),
                 role.getRoleName(),
                 role.getDescription(),
-                role.getCreatedAt()
+                role.getCreatedAt(),
+                role.getDeletedAt()
         );
 
     }
@@ -28,7 +29,8 @@ public class RoleMapper {
                 null,
                 dto.role(),
                 dto.description(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                null
         );
     }
 }
