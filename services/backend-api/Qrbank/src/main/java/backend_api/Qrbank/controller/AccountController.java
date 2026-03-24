@@ -28,13 +28,13 @@ public class AccountController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<AccountResponseDTO>> getByID(@PathVariable Long id){
-        return service.findByID(id).map(ResponseEntity::ok);
+        return service.findById(id).map(ResponseEntity::ok);
     }
 
     // find all
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Flux<AccountResponseDTO> getByID(){
+    public Flux<AccountResponseDTO> getAll(){
         return service.findByAll();
     }
 
