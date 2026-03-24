@@ -3,7 +3,6 @@ package backend_api.Qrbank.controller;
 
 import backend_api.Qrbank.dto.GuardianRequestDTO;
 import backend_api.Qrbank.dto.GuardianResponseDTO;
-import backend_api.Qrbank.dto.RoleResponseDTO;
 import backend_api.Qrbank.service.GuardianService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
