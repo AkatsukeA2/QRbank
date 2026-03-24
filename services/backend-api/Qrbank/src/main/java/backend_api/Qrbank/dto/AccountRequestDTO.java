@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 public record AccountRequestDTO(
 
         @NotBlank
-        Long userID,
+        Long userId,
 
         @NotBlank
         IbanCurrency currency

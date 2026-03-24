@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("account")
+@Table("accounts")
 public class Account {
 
     @Id
@@ -24,7 +24,7 @@ public class Account {
 
     @NotBlank
     @Column("user_id")
-    private Long userID;
+    private Long userId;
 
     @NotBlank
     @Column("account_number")

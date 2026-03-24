@@ -33,7 +33,7 @@ public class AccountMapper {
         String iban = generateIBAN(accountNumber,requestDTO);
         return new Account(
                 null,
-                requestDTO.userID(),
+                requestDTO.userId(),
                 accountNumber,
                 iban,
                 BigDecimal.ZERO,

@@ -4,7 +4,9 @@ import backend_api.Qrbank.dto.AccountRequestDTO;
 import backend_api.Qrbank.dto.AccountResponseDTO;
 import backend_api.Qrbank.mapper.AccountMapper;
 import backend_api.Qrbank.model.Account;
+import backend_api.Qrbank.model.User;
 import backend_api.Qrbank.repository.AccountRepository;
+import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -17,24 +19,24 @@ import java.time.LocalDateTime;
 public class AccountService {
 
     private final AccountRepository repository;
+    private final UserRepository userRepository;
 
     // create account
 
     public Mono<AccountResponseDTO> createAccount(AccountRequestDTO requestDTO){
-        Account account = AccountMapper.toEntity(requestDTO);
-        return repository.findById(account.getId())
-                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
-                .flatMap(account1 -> {
-                    return repository.save(account1).map(AccountMapper::toResponse);
+        return userRepository.findById(requestDTO.userId())
+                .switchIfEmpty(Mono.error(new RuntimeException("User not found, cannot create account")))
+                .flatMap(user -> {
+                    Account account = AccountMapper.toEntity(requestDTO);
+                   return repository.save(account).map(AccountMapper::toResponse);
                 });
-
     }
 
     // find by id
 
-    public Mono<AccountResponseDTO> findByID(Long id){
+    public Mono<AccountResponseDTO> findById(Long id){
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found, cannot create get it")))
                 .map(AccountMapper::toResponse);
 
     }
@@ -42,13 +44,13 @@ public class AccountService {
 
     // find all
     public Flux<AccountResponseDTO> findByAll(){
-        return repository.findAll().filter(account -> account.getDeletedAt() != null && !account.isActive())
+        return repository.findAll().filter(account -> account.getDeletedAt() == null )
                 .map(AccountMapper::toResponse);
     }
 
     // find by userID
-    public Mono<AccountResponseDTO> findByUser(Long userID){
-         return repository.findByUserID(userID)
+    public Mono<AccountResponseDTO> findByUser(Long userId){
+         return repository.findByUserId(userId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
                  .map(AccountMapper::toResponse);
     }
