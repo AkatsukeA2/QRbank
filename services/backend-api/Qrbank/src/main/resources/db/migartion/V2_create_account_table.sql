@@ -1,5 +1,4 @@
 
-
 CREATE TABLE `accounts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `account_number` varchar(30) NOT NULL,
@@ -15,5 +14,5 @@ CREATE TABLE `accounts` (
   UNIQUE KEY `account_number` (`account_number`),
   UNIQUE KEY `iban` (`iban`),
   KEY `fk_account_user` (`user_id`),
-  CONSTRAINT `fk_account_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_account_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 )

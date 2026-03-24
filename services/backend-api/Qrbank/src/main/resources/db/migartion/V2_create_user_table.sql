@@ -1,5 +1,5 @@
 
-CREATE TABLE `user` (
+CREATE TABLE `users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
