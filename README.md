@@ -66,15 +66,15 @@ git clone https://github.com/AkatsukeA2/QRbank.git
 cd QRBank
 ```
 
-2. **Frontend Setup:**
-   - Navigate to the frontend directory.
-   - Run `flutter pub get` to install dependencies.
-   - Run `flutter run` with a connected emulator or device.
-
-3. **Backend Setup:**
+2. **Backend Setup:**
    - Navigate to `services/backend-api`.
    - Ensure you have JDK 17+ and Maven installed.
    - Run `./mvnw spring-boot:run`.
+
+3. **Frontend Setup:**
+   - Ensure Flutter SDK is installed.
+   - Run `flutter pub get` to install dependencies.
+   - Run `flutter run` with a connected emulator or device.
 
 ---
 
