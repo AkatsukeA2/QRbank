@@ -62,6 +62,22 @@ Each service has its own repository and README:
 
 1. Clone the repository:
 ```bash
-
 git clone https://github.com/AkatsukeA2/QRbank.git
 cd QRBank
+```
+
+2. **Backend Setup:**
+   - Navigate to `services/backend-api`.
+   - Ensure you have JDK 17+ and Maven installed.
+   - Run `./mvnw spring-boot:run`.
+
+3. **Frontend Setup:**
+   - Ensure Flutter SDK is installed.
+   - Run `flutter pub get` to install dependencies.
+   - Run `flutter run` with a connected emulator or device.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
