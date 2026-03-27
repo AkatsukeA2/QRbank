@@ -20,7 +20,7 @@ public class JwtService {
     private JwtPropertiesConfig jwtPropertiesConfig;
     private RoleRepository roleRepository;
 
-    public Mono<String>  generateToken(User user){
+    public  Mono<String>  generateToken(User user){
         return roleRepository.findById(user.getRoleID()).map(role -> Jwts.builder()
                     .setSubject(String.valueOf(user.getId()))
                     .claim("email",user.getEmail()).claim("role",role.getRoleName())

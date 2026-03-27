@@ -8,4 +8,7 @@ public interface AuthRefreshTokensRepository extends ReactiveCrudRepository <Aut
     Mono<AuthRefreshTokens> findByToken(String token);
     Mono<Void> deleteByUserID(Long id);
 
+    Mono<Void> findByUserId(Long userId);
+
+    Mono<AuthRefreshTokens> findByUserId(Long userId);
 }
