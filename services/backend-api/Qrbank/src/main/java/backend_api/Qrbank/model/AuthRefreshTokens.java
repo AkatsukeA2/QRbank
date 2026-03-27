@@ -3,6 +3,7 @@ package backend_api.Qrbank.model;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Table("refresh_tokens")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class AuthRefreshTokens {
 
     @Id
@@ -18,7 +20,7 @@ public class AuthRefreshTokens {
     private Long id;
 
     @NotBlank
-    private String userID;
+    private Long userID;
 
     @NotBlank
     private String token;
