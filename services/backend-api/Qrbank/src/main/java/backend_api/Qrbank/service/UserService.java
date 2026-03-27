@@ -8,6 +8,7 @@ import backend_api.Qrbank.repository.GuardianRepository;
 import backend_api.Qrbank.repository.RoleRepository;
 import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,7 +28,6 @@ public class UserService {
     // create user
 
     public Mono<UserResponseDTO> createUser(UserRequestDTO requestDTO){
-
         User user = UserMapper.toEntity(requestDTO);
 
 
