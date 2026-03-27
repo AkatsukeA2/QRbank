@@ -33,7 +33,7 @@ public class RoleService {
                 .map(RoleMapper::toResponseDTO);
     }
 
-    public Mono<RoleResponseDTO> geyRoleById(Long id){
+    public Mono<RoleResponseDTO> getRoleById(Long id){
         return repository.findById(id).map(RoleMapper::toResponseDTO);
 
     }
