@@ -1,7 +1,7 @@
 package backend_api.Qrbank.security;
 
 import backend_api.Qrbank.service.JwtService;
-import backend_api.Qrbank.service.UserService; // serviço para buscar user no BD
+import backend_api.Qrbank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
