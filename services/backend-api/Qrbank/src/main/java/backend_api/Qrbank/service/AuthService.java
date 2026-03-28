@@ -27,7 +27,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final AuthRefreshTokesService refreshTokesService;
 
-    /* --- LOGIN --- */
+
     public Mono<AuthResponseDTO> login(AuthLoginRequestDTO requestDTO) {
         return userRepository.findByEmail(requestDTO.email())
                 .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
@@ -47,7 +47,7 @@ public class AuthService {
                 });
     }
 
-    /* --- REGISTER --- */
+
     public Mono<AuthResponseDTO> register(AuthRegisterRequestDTO requestDTO) {
         return validateUserDoesNotExist(requestDTO)
                 .then(getDefaultRole())
@@ -55,7 +55,7 @@ public class AuthService {
                 .flatMap(this::generateTokens);
     }
 
-    /* --- REFRESH --- */
+
     public Mono<AuthResponseDTO> refresh(RefreshRequestDTO token) {
         System.out.println(">>> Token recebido no refresh: [" + token.token() + "]");
         return refreshTokesService.findByToken(token.token()).doOnNext(t -> System.out.println(">>> Token encontrado no banco: [" + t.getToken() + "]"))
@@ -81,12 +81,12 @@ public class AuthService {
                 );
     }
 
-    /* --- LOGOUT --- */
+
     public Mono<Void> logout(RefreshRequestDTO requestDTO) {
         return refreshTokesService.deleteByUserToken(requestDTO);
     }
 
-    /* --- AUXILIARES --- */
+
     private Mono<Void> validateUserDoesNotExist(AuthRegisterRequestDTO requestDTO) {
         return userRepository.findByEmail(requestDTO.email())
                 .flatMap(user -> Mono.error(new RuntimeException("Email already exists")))
