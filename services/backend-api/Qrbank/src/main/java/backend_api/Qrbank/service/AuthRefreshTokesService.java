@@ -4,43 +4,51 @@ import backend_api.Qrbank.config.JwtPropertiesConfig;
 import backend_api.Qrbank.dto.AuthResponseDTO;
 import backend_api.Qrbank.dto.RefreshRequestDTO;
 import backend_api.Qrbank.model.AuthRefreshTokens;
+import backend_api.Qrbank.model.RoleName;
 import backend_api.Qrbank.model.User;
 import backend_api.Qrbank.repository.AuthRefreshTokensRepository;
+import backend_api.Qrbank.repository.RoleRepository;
 import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthRefreshTokesService {
-    private AuthRefreshTokensRepository repository;
-    private UserRepository userRepository;
-    private JwtService jwtService;
-    private JwtPropertiesConfig jwtPropertiesConfig;
-    private Duration tokenDuration = Duration.ofDays(jwtPropertiesConfig.getExpiration());
+    private final AuthRefreshTokensRepository repository;
+    private final RoleRepository roleRepository;
+    private final JwtPropertiesConfig jwtPropertiesConfig;
 
 
-    public Mono<AuthRefreshTokens> createRefreshToken(User user){
 
-        AuthRefreshTokens refreshTokens = new AuthRefreshTokens();
-        refreshTokens.setUserID(user.getId());
-        refreshTokens.setToken(String.valueOf(jwtService.generateToken(user)));
-        refreshTokens.setCreatedAt(LocalDateTime.now());
-        refreshTokens.setExpireBy(LocalDateTime.from(Instant.now().plus(tokenDuration)));
-        refreshTokens.setRevoked(false);
+    public Mono<AuthRefreshTokens> createRefreshToken(User user) {
 
-        return repository.deleteByUserID(user.getId())
-                .then(repository.save(refreshTokens));
+        return roleRepository.findById(user.getRoleID())
+                .switchIfEmpty(Mono.error(new RuntimeException("Role not found")))
+                .flatMap(role -> {
+                    String token = UUID.randomUUID().toString();
+
+                    AuthRefreshTokens refreshToken = new AuthRefreshTokens();
+                    refreshToken.setUserId(user.getId());
+                    refreshToken.setToken(token);
+                    refreshToken.setCreatedAt(LocalDateTime.now());
+                    refreshToken.setExpireBy(LocalDateTime.now().plus(Duration.ofMillis(jwtPropertiesConfig.getRefresh_expiration())));
+                    refreshToken.setRevoked(false);
+
+                    return repository.deleteByUserId(user.getId())
+                            .then(repository.save(refreshToken));
+                });
     }
 
     public Mono<AuthRefreshTokens> findByToken(String token){
-         return repository.findByToken(token)
-                 .switchIfEmpty(Mono.error(new RuntimeException("refresh token not found")));
+         return repository.findByToken(token);
     }
     public Mono<AuthRefreshTokens> findByUserId(Long userId){
         return repository.findByUserId(userId)
@@ -53,21 +61,21 @@ public class AuthRefreshTokesService {
                 .flatMap(tokens -> {
                     if (!tokens.getRevoked() && tokens.getExpireBy().isAfter(LocalDateTime.now())){
                         tokens.setRevoked(true);
-                        repository.save(tokens);
-                        return repository.deleteByUserID(tokens.getId());
+                        repository.save(tokens).then(Mono.error(new RuntimeException("Token expired")));;
+                        return repository.deleteByUserId(tokens.getId());
                     }
                     return repository.findById(tokens.getId());
                 }).then(Mono.just(token));
     }
 
-    public Mono<Void> deleteByUserId(Long userId){
+    public Mono<String> deleteByUserId(Long userId){
         return repository.findByUserId(userId)
                 .switchIfEmpty(Mono.error(new RuntimeException("token not found, cannot delete")))
-                .flatMap(tokens -> repository.deleteById(userId));
+                .flatMap(tokens -> repository.deleteById(tokens.getId())).then(Mono.just("deleted"));
     }
 
     public Mono<Void> deleteByUserToken(RefreshRequestDTO token){
-        return repository.findByToken(token.RefreshToken())
+        return repository.findByToken(token.token())
                 .switchIfEmpty(Mono.error(new RuntimeException("token not found, cannot delete")))
                 .flatMap(tokens -> repository.deleteById(tokens.getId()));
     }

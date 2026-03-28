@@ -53,7 +53,7 @@ public class UserService {
     }
 
     // find by user id
-    public Mono<UserResponseDTO> findByUSerID(Long id){
+    public Mono<UserResponseDTO> findByUserID(Long id){
         return repository.findById(id).filter(user -> user.getDeletedAt() == null)
                 .switchIfEmpty(Mono.error(new RuntimeException("USer not found"))).map(UserMapper::toResponseDTO);
     }

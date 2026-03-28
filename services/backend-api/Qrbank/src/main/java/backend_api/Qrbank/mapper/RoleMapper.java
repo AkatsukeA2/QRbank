@@ -3,6 +3,7 @@ package backend_api.Qrbank.mapper;
 import backend_api.Qrbank.dto.RoleRequestDTO;
 import backend_api.Qrbank.dto.RoleResponseDTO;
 import backend_api.Qrbank.model.Role;
+import backend_api.Qrbank.model.RoleName;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -16,10 +17,10 @@ public class RoleMapper {
     public static RoleResponseDTO toResponseDTO(Role role){
         return new RoleResponseDTO(
                 role.getId(),
-                role.getRoleName(),
+                RoleName.valueOf(role.getRoleName()),
                 role.getDescription(),
                 role.getCreatedAt(),
-                role.getDeletedAt()
+                role.getDeleteAt()
         );
 
     }
@@ -27,7 +28,7 @@ public class RoleMapper {
     public static Role toEntity(RoleRequestDTO dto) {
         return new Role(
                 null,
-                dto.role(),
+                String.valueOf(dto.role()),
                 dto.description(),
                 LocalDateTime.now(),
                 null

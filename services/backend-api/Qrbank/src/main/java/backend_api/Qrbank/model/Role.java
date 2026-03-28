@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("role")
+@Table("roles")
 public class Role {
 
     @Id
     private Long id;
 
     @Column("role_name")
-    private RoleName roleName;
+    private String roleName;
 
     @Column("description")
     private String description;
@@ -26,8 +26,8 @@ public class Role {
     @Column("created_at")
     private LocalDateTime createdAt;
 
-    @Column("deleted_at")
-    private LocalDateTime deletedAt;
+    @Column("delete_at")
+    private LocalDateTime deleteAt;
 
 
 

@@ -6,9 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface AuthRefreshTokensRepository extends ReactiveCrudRepository <AuthRefreshTokens, Long> {
     Mono<AuthRefreshTokens> findByToken(String token);
-    Mono<Void> deleteByUserID(Long id);
-
-    Mono<Void> findByUserId(Long userId);
-
+    Mono<Void> deleteByUserId(Long id);
     Mono<AuthRefreshTokens> findByUserId(Long userId);
 }
