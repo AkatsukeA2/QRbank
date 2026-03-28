@@ -2,7 +2,7 @@ package backend_api.Qrbank.model;
 
 public enum RoleName {
     ADMIN,
-    CUSTOMER,
+    USER,
     PARENT,
     CHILD,
     MERCHANT

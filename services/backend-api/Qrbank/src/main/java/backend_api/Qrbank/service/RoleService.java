@@ -4,6 +4,7 @@ import backend_api.Qrbank.dto.RoleRequestDTO;
 import backend_api.Qrbank.dto.RoleResponseDTO;
 import backend_api.Qrbank.mapper.RoleMapper;
 import backend_api.Qrbank.model.Role;
+import backend_api.Qrbank.model.RoleName;
 import backend_api.Qrbank.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -41,7 +42,7 @@ public class RoleService {
     public Mono<RoleResponseDTO> updateRole(Long id, RoleRequestDTO request) {
         return repository.findById(id)
                 .flatMap(existing -> {
-                    existing.setRoleName(request.role());
+                    existing.setRoleName(String.valueOf(request.role()));
                     existing.setDescription(request.description());
                     return repository.save(existing);
                 })
@@ -52,7 +53,7 @@ public class RoleService {
     public Mono<Void> softDelete(Long id){
         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Role not found"))).flatMap(role -> {
 
-            role.setDeletedAt(LocalDateTime.now());
+            role.setDeleteAt(LocalDateTime.now());
             return repository.save(role);
 
         }).then();
@@ -64,7 +65,7 @@ public class RoleService {
     public Mono<Void> restoreRole(Long id){
         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Role not found"))).flatMap(role -> {
 
-            role.setDeletedAt(null);
+            role.setDeleteAt(null);
             return repository.save(role);
 
         }).then();
