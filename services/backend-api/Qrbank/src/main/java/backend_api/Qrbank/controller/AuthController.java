@@ -18,26 +18,25 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /* --- REGISTER --- */
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<AuthResponseDTO> register(@RequestBody AuthRegisterRequestDTO requestDTO) {
         return authService.register(requestDTO);
     }
 
-    /* --- LOGIN --- */
+
     @PostMapping("/login")
     public Mono<AuthResponseDTO> login(@RequestBody AuthLoginRequestDTO requestDTO) {
         return authService.login(requestDTO);
     }
 
-    /* --- REFRESH TOKEN --- */
+
     @PostMapping("/refresh")
     public Mono<AuthResponseDTO> refresh(@RequestBody RefreshRequestDTO refreshToken) {
         return authService.refresh(refreshToken);
     }
 
-    /* --- LOGOUT --- */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> logout(@RequestBody RefreshRequestDTO requestDTO) {
