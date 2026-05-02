@@ -2,9 +2,8 @@ package backend_api.Qrbank.mapper;
 
 import backend_api.Qrbank.dto.UserRequestDTO;
 import backend_api.Qrbank.dto.UserResponseDTO;
-import backend_api.Qrbank.model.User;
+import backend_api.Qrbank.model.entities.User;
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

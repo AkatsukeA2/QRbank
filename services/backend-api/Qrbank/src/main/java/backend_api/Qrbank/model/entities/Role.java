@@ -1,5 +1,6 @@
-package backend_api.Qrbank.model;
+package backend_api.Qrbank.model.entities;
 
+import backend_api.Qrbank.model.Model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table("roles")
-public class Role {
-
-    @Id
-    private Long id;
+public class Role extends Model {
 
     @Column("role_name")
     private String roleName;
@@ -23,14 +21,6 @@ public class Role {
     @Column("description")
     private String description;
 
-    @Column("created_at")
-    private LocalDateTime createdAt;
-
-    @Column("delete_at")
-    private LocalDateTime deleteAt;
-
-
-
-
-
+    public Role(Long id, String roleName, String description, LocalDateTime createdAt, LocalDateTime deletedAt) {
+    }
 }

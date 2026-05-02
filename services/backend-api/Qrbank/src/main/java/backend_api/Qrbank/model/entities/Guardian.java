@@ -1,5 +1,7 @@
-package backend_api.Qrbank.model;
+package backend_api.Qrbank.model.entities;
 
+import backend_api.Qrbank.model.Model;
+import backend_api.Qrbank.model.enums.GuardianRelationship;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -15,11 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table("guardians")
-public class Guardian {
-
-    @Id
-    @Column("id")
-    private Long id;
+public class Guardian extends Model {
 
     @NotBlank
     @Column("first_name")
@@ -42,22 +40,6 @@ public class Guardian {
     @Column("relationship")
     private GuardianRelationship guardianRelationship;
 
-    @NotBlank
-    @Column("created_at")
-    private LocalDateTime createdAT;
-
-    @NotBlank
-    @Column("updated_at")
-    private LocalDateTime updatedAt;
-
-    @NotBlank
-    @Column("deleted_at")
-    private LocalDateTime deletedAt;
-
-
-
-
-
-
-
+    public Guardian(Long id, @NotBlank String firstName, @NotBlank String lastName, @NotBlank @Email String email, @NotBlank String phoneNumber, @NotBlank GuardianRelationship relationship, LocalDateTime now, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+    }
 }

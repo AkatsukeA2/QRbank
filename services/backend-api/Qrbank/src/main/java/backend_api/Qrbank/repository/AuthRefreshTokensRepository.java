@@ -1,6 +1,6 @@
 package backend_api.Qrbank.repository;
 
-import backend_api.Qrbank.model.AuthRefreshTokens;
+import backend_api.Qrbank.model.entities.AuthRefreshTokens;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 

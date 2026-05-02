@@ -1,21 +1,16 @@
 package backend_api.Qrbank.service;
 
 import backend_api.Qrbank.config.JwtPropertiesConfig;
-import backend_api.Qrbank.dto.AuthResponseDTO;
 import backend_api.Qrbank.dto.RefreshRequestDTO;
-import backend_api.Qrbank.model.AuthRefreshTokens;
-import backend_api.Qrbank.model.RoleName;
-import backend_api.Qrbank.model.User;
+import backend_api.Qrbank.model.entities.AuthRefreshTokens;
+import backend_api.Qrbank.model.entities.User;
 import backend_api.Qrbank.repository.AuthRefreshTokensRepository;
 import backend_api.Qrbank.repository.RoleRepository;
-import backend_api.Qrbank.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

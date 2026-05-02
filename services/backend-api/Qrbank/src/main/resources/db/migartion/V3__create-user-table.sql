@@ -16,5 +16,5 @@ CREATE TABLE `users` (
   KEY `fk_user_role` (`role_id`),
   KEY `fk_user_guardian` (`guardian_id`),
   CONSTRAINT `fk_user_guardian` FOREIGN KEY (`guardian_id`) REFERENCES `guardians` (`id`),
-  CONSTRAINT `fk_user_role` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
+  CONSTRAINT `fk_user_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 )

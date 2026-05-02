@@ -4,7 +4,6 @@ import backend_api.Qrbank.dto.AuthLoginRequestDTO;
 import backend_api.Qrbank.dto.AuthRegisterRequestDTO;
 import backend_api.Qrbank.dto.AuthResponseDTO;
 import backend_api.Qrbank.dto.RefreshRequestDTO;
-import backend_api.Qrbank.model.AuthRefreshTokens;
 import backend_api.Qrbank.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

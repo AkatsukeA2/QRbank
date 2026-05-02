@@ -1,6 +1,6 @@
 package backend_api.Qrbank.repository;
 
-import backend_api.Qrbank.model.Guardian;
+import backend_api.Qrbank.model.entities.Guardian;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;

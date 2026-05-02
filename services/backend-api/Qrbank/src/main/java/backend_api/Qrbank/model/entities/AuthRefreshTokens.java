@@ -1,5 +1,6 @@
-package backend_api.Qrbank.model;
+package backend_api.Qrbank.model.entities;
 
+import backend_api.Qrbank.model.Model;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,11 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthRefreshTokens {
-
-    @Id
-    @NotBlank
-    private Long id;
+public class AuthRefreshTokens extends Model {
 
     @NotBlank
     @Column("user_id")
@@ -36,7 +33,4 @@ public class AuthRefreshTokens {
     @Column("revoked")
     private Boolean revoked = false;
 
-    @NotBlank
-    @Column("created_at")
-    private LocalDateTime createdAt;
 }

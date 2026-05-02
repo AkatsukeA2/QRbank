@@ -3,8 +3,7 @@ package backend_api.Qrbank.service;
 import backend_api.Qrbank.dto.RoleRequestDTO;
 import backend_api.Qrbank.dto.RoleResponseDTO;
 import backend_api.Qrbank.mapper.RoleMapper;
-import backend_api.Qrbank.model.Role;
-import backend_api.Qrbank.model.RoleName;
+import backend_api.Qrbank.model.entities.Role;
 import backend_api.Qrbank.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -53,7 +52,7 @@ public class RoleService {
     public Mono<Void> softDelete(Long id){
         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Role not found"))).flatMap(role -> {
 
-            role.setDeleteAt(LocalDateTime.now());
+            role.setDeletedAt(LocalDateTime.now());
             return repository.save(role);
 
         }).then();
@@ -65,7 +64,7 @@ public class RoleService {
     public Mono<Void> restoreRole(Long id){
         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Role not found"))).flatMap(role -> {
 
-            role.setDeleteAt(null);
+            role.setDeletedAt(null);
             return repository.save(role);
 
         }).then();

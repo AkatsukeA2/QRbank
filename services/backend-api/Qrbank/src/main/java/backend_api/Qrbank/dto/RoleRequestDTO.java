@@ -1,6 +1,6 @@
 package backend_api.Qrbank.dto;
 
-import backend_api.Qrbank.model.RoleName;
+import backend_api.Qrbank.model.enums.RoleName;
 
 public record RoleRequestDTO(
 

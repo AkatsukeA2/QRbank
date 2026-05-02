@@ -1,4 +1,4 @@
-package backend_api.Qrbank.model;
+package backend_api.Qrbank.model.enums;
 
 public enum IbanCurrency {
 
