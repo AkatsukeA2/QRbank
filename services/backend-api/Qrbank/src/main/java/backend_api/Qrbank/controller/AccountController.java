@@ -9,10 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/accounts")
 public class AccountController {
 
     private final AccountService service;

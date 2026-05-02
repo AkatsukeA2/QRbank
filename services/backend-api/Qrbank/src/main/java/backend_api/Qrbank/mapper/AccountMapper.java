@@ -2,7 +2,7 @@ package backend_api.Qrbank.mapper;
 
 import backend_api.Qrbank.dto.AccountRequestDTO;
 import backend_api.Qrbank.dto.AccountResponseDTO;
-import backend_api.Qrbank.model.Account;
+import backend_api.Qrbank.model.entities.Account;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 

@@ -2,11 +2,10 @@ package backend_api.Qrbank.mapper;
 
 import backend_api.Qrbank.dto.RoleRequestDTO;
 import backend_api.Qrbank.dto.RoleResponseDTO;
-import backend_api.Qrbank.model.Role;
-import backend_api.Qrbank.model.RoleName;
+import backend_api.Qrbank.model.entities.Role;
+import backend_api.Qrbank.model.enums.RoleName;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Component
@@ -20,7 +19,7 @@ public class RoleMapper {
                 RoleName.valueOf(role.getRoleName()),
                 role.getDescription(),
                 role.getCreatedAt(),
-                role.getDeleteAt()
+                role.getDeletedAt()
         );
 
     }

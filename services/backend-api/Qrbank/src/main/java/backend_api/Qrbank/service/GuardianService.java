@@ -3,7 +3,7 @@ package backend_api.Qrbank.service;
 import backend_api.Qrbank.dto.GuardianRequestDTO;
 import backend_api.Qrbank.dto.GuardianResponseDTO;
 import backend_api.Qrbank.mapper.GuardianMapper;
-import backend_api.Qrbank.model.Guardian;
+import backend_api.Qrbank.model.entities.Guardian;
 import backend_api.Qrbank.repository.GuardianRepository;
 import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class GuardianService {
         return repository.existsByEmail(requestDTO.email()).flatMap(exist ->{
             if (exist) return Mono.error(new RuntimeException("this guardian already exist"));
             Guardian guardian = GuardianMapper.toEntity(requestDTO);
-            guardian.setCreatedAT(LocalDateTime.now());
+            guardian.setCreatedAt(LocalDateTime.now());
             return repository.save(guardian).map(GuardianMapper::toResponseDTO);
         });
 

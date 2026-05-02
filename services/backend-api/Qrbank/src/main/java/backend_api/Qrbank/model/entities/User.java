@@ -1,4 +1,4 @@
-package backend_api.Qrbank.model;
+package backend_api.Qrbank.model.entities;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

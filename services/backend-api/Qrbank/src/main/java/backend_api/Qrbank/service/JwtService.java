@@ -1,9 +1,8 @@
 package backend_api.Qrbank.service;
 
 import backend_api.Qrbank.config.JwtPropertiesConfig;
-import backend_api.Qrbank.model.AuthRefreshTokens;
-import backend_api.Qrbank.model.RoleName;
-import backend_api.Qrbank.model.User;
+import backend_api.Qrbank.model.enums.RoleName;
+import backend_api.Qrbank.model.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,9 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor

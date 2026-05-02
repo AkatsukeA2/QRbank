@@ -2,7 +2,7 @@ package backend_api.Qrbank.mapper;
 
 import backend_api.Qrbank.dto.GuardianRequestDTO;
 import backend_api.Qrbank.dto.GuardianResponseDTO;
-import backend_api.Qrbank.model.Guardian;
+import backend_api.Qrbank.model.entities.Guardian;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public class GuardianMapper {
                 guardian.getEmail(),
                 guardian.getPhoneNumber(),
                 guardian.getGuardianRelationship(),
-                guardian.getCreatedAT(),
+                guardian.getCreatedAt(),
                 guardian.getUpdatedAt(),
                 guardian.getDeletedAt()
         );

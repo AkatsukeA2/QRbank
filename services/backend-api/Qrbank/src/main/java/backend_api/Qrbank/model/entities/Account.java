@@ -1,5 +1,7 @@
-package backend_api.Qrbank.model;
+package backend_api.Qrbank.model.entities;
 
+import backend_api.Qrbank.model.Model;
+import backend_api.Qrbank.model.enums.IbanCurrency;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,13 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table("accounts")
-public class Account {
-
-    @Id
-    @NotBlank
-    @Column("id")
-    private Long id;
-
+public class Account extends Model {
     @NotBlank
     @Column("user_id")
     private Long userId;
@@ -36,7 +32,7 @@ public class Account {
 
     @NotBlank
     @Column("balance")
-    private BigDecimal balance;
+    private Double balance;
 
     @NotBlank
     @Column("currency")
@@ -46,19 +42,6 @@ public class Account {
     @Column("active")
     private boolean active;
 
-    @NotBlank
-    @Column("created_at")
-    private LocalDateTime createdAt;
-
-    @NotBlank
-    @Column("updated_at")
-    private LocalDateTime updatedAt;
-
-    @NotBlank
-    @Column("deleted_at")
-    private LocalDateTime deletedAt;
-
-
-
-
+    public Account(Long userId, @NotBlank Long aLong, String accountNumber, String iban, BigDecimal zero, @NotBlank IbanCurrency currency, boolean b, LocalDateTime now, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+    }
 }

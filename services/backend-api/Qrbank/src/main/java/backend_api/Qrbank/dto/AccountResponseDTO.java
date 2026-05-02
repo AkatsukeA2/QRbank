@@ -1,6 +1,6 @@
 package backend_api.Qrbank.dto;
 
-import backend_api.Qrbank.model.IbanCurrency;
+import backend_api.Qrbank.model.enums.IbanCurrency;
 import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ public record AccountResponseDTO(
         String iban,
 
         @NotBlank
-        BigDecimal balance,
+        Double balance,
 
         @NotBlank
         IbanCurrency currency,
