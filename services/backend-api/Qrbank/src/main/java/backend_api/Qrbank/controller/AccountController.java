@@ -2,7 +2,9 @@ package backend_api.Qrbank.controller;
 
 import backend_api.Qrbank.dto.AccountRequestDTO;
 import backend_api.Qrbank.dto.AccountResponseDTO;
+import backend_api.Qrbank.dto.LedgerResponseDTO;
 import backend_api.Qrbank.service.AccountService;
+import backend_api.Qrbank.service.LedgerService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Mono;
 public class AccountController {
 
     private final AccountService service;
+    private LedgerService ledgerService;
 
     // create account
     @PostMapping
@@ -70,6 +73,12 @@ public class AccountController {
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<AccountResponseDTO>>hardDelete(@PathVariable Long id){
         return service.hardDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
+
+    @GetMapping("/account/{accountId}")
+    public Flux<LedgerResponseDTO> getStatement(@PathVariable Long accountId) {
+        return ledgerService.getStatement(accountId);
     }
 
 

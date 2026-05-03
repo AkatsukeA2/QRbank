@@ -4,6 +4,7 @@ import backend_api.Qrbank.dto.TransactionRequestDTO;
 import backend_api.Qrbank.dto.TransactionResponseDTO;
 import backend_api.Qrbank.model.entities.Account;
 import backend_api.Qrbank.model.entities.Transaction;
+import backend_api.Qrbank.model.enums.LedgerType;
 import backend_api.Qrbank.model.enums.TransactionStatus;
 import backend_api.Qrbank.model.enums.TransactionType;
 import backend_api.Qrbank.repository.AccountRepository;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import backend_api.Qrbank.mapper.TransactionMapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -23,6 +25,7 @@ public class TransactionsService {
 
     private final TransactionRepository repository;
     private final AccountRepository accountRepository;
+    private final LedgerService ledgerService;
 
 
     @Transactional
@@ -33,6 +36,7 @@ public class TransactionsService {
         }
 
         Double amount = requestDTO.amount();
+        BigDecimal amount2 = BigDecimal.valueOf(amount);
         TransactionType type = TransactionType.valueOf(requestDTO.type());
 
         return accountRepository.findById(accountId)
@@ -46,33 +50,71 @@ public class TransactionsService {
                                     accountRepository.findById(requestDTO.receiverAccountID())
                                             .switchIfEmpty(Mono.error(new RuntimeException("Conta destino inexistente")))
                                             .flatMap(receiver ->
-                                                    debit(accountId, amount)
-                                                            .then(credit(receiver.getId(), amount))
-                                                            .then(saveTransaction(
-                                                                    requestDTO,
-                                                                    accountId,
-                                                                    TransactionStatus.COMPLETED
-                                                            ))
+
+                                                    // 1. salva transaction primeiro
+                                                    saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED)
+                                                            .flatMap(transaction ->
+
+                                                                    // 2. executa movimentações
+                                                                    debit(accountId, amount)
+                                                                            .then(credit(receiver.getId(), amount))
+
+                                                                            // 3. ledger depois de tudo ok
+                                                                            .then(Mono.when(
+
+                                                                                    ledgerService.createEntry(
+                                                                                            accountId,
+                                                                                            transaction.id(),
+                                                                                            LedgerType.CREDIT,
+                                                                                            amount2
+                                                                                    ),
+
+                                                                                    ledgerService.createEntry(
+                                                                                            receiver.getId(),
+                                                                                            transaction.id(),
+                                                                                            LedgerType.DEBIT,
+                                                                                            amount2
+                                                                                    )
+
+                                                                            ).thenReturn(transaction))
+
+                                                            )
                                             );
 
                             case DEPOSIT ->
 
-                                    credit(accountId, amount)
-                                            .then(saveTransaction(
-                                                    requestDTO,
-                                                    accountId,
-                                                    TransactionStatus.COMPLETED
-                                            ));
+                                    saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED)
+                                            .flatMap(transaction ->
 
+                                                    credit(accountId, amount)
+                                                            .then(
+                                                                    ledgerService.createEntry(
+                                                                            accountId,
+                                                                            transaction.id(),
+                                                                            LedgerType.DEBIT,
+                                                                            amount2
+                                                                    )
+                                                            )
+                                                            .thenReturn(transaction)
+
+                                            );
                             case WITHDRAW ->
 
-                                    debit(accountId, amount)
-                                            .then(saveTransaction(
-                                                    requestDTO,
-                                                    accountId,
-                                                    TransactionStatus.COMPLETED
-                                            ));
+                                    saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED)
+                                            .flatMap(transaction ->
 
+                                                    debit(accountId, amount)
+                                                            .then(
+                                                                    ledgerService.createEntry(
+                                                                            accountId,
+                                                                            transaction.id(),
+                                                                            LedgerType.CREDIT,
+                                                                            amount2
+                                                                    )
+                                                            )
+                                                            .thenReturn(transaction)
+
+                                            );
                         }
                 );
     }
