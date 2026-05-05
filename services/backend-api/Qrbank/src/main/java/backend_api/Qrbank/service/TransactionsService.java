@@ -65,14 +65,14 @@ public class TransactionsService {
                                                                                     ledgerService.createEntry(
                                                                                             accountId,
                                                                                             transaction.id(),
-                                                                                            LedgerType.CREDIT,
+                                                                                            LedgerType.DEBIT,
                                                                                             amount2
                                                                                     ),
 
                                                                                     ledgerService.createEntry(
                                                                                             receiver.getId(),
                                                                                             transaction.id(),
-                                                                                            LedgerType.DEBIT,
+                                                                                            LedgerType.CREDIT,
                                                                                             amount2
                                                                                     )
 
@@ -91,7 +91,7 @@ public class TransactionsService {
                                                                     ledgerService.createEntry(
                                                                             accountId,
                                                                             transaction.id(),
-                                                                            LedgerType.DEBIT,
+                                                                            LedgerType.CREDIT,
                                                                             amount2
                                                                     )
                                                             )
@@ -108,7 +108,7 @@ public class TransactionsService {
                                                                     ledgerService.createEntry(
                                                                             accountId,
                                                                             transaction.id(),
-                                                                            LedgerType.CREDIT,
+                                                                            LedgerType.DEBIT,
                                                                             amount2
                                                                     )
                                                             )
