@@ -3,7 +3,6 @@ package backend_api.Qrbank.controller;
 import backend_api.Qrbank.dto.AccountRequestDTO;
 import backend_api.Qrbank.dto.AccountResponseDTO;
 import backend_api.Qrbank.dto.LedgerResponseDTO;
-import backend_api.Qrbank.dto.TransactionResponseDTO;
 import backend_api.Qrbank.service.AccountService;
 import backend_api.Qrbank.service.LedgerService;
 import lombok.AllArgsConstructor;
