@@ -1,6 +1,5 @@
 package backend_api.Qrbank.controller;
 
-import backend_api.Qrbank.dto.AccountResponseDTO;
 import backend_api.Qrbank.dto.TransactionRequestDTO;
 import backend_api.Qrbank.dto.TransactionResponseDTO;
 import backend_api.Qrbank.service.TransactionsService;
@@ -40,6 +39,12 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public Flux<ResponseEntity<TransactionResponseDTO>> getByAccountId(@PathVariable Long accountId){
         return service.getTransactionByAccountId(accountId).map(ResponseEntity::ok);
+    }
+
+    @PostMapping("/tranfer/{id}/qr")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Mono<ResponseEntity<TransactionResponseDTO>> QrTransfer(@RequestBody TransactionRequestDTO requestDTO, @PathVariable Long id){
+        return service.transfer(id,requestDTO).map(ResponseEntity::ok);
     }
 
 

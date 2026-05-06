@@ -11,15 +11,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+
 @RestController
 @AllArgsConstructor
+@RequestMapping("/api/accounts")
 public class AccountController {
 
     private final AccountService service;
     private LedgerService ledgerService;
 
     // create account
-    @PostMapping
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseEntity<AccountResponseDTO>> create(@RequestBody AccountRequestDTO requestDTO){
         return service.createAccount(requestDTO).map(ResponseEntity::ok);
@@ -33,7 +37,7 @@ public class AccountController {
     }
 
     // find all
-    @GetMapping
+    @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     public Flux<AccountResponseDTO> getAll(){
         return service.findByAll();
@@ -79,6 +83,17 @@ public class AccountController {
     @GetMapping("/account/{accountId}")
     public Flux<LedgerResponseDTO> getStatement(@PathVariable Long accountId) {
         return ledgerService.getStatement(accountId);
+    }
+
+    @GetMapping("/{id}/qr")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Map<String,String>> getQrData(@PathVariable Long id){
+        return Mono.just(
+                Map.of(
+                        "type","ACCOUNT_QR",
+                        "accountId", String.valueOf(id)
+                )
+        );
     }
 
 
