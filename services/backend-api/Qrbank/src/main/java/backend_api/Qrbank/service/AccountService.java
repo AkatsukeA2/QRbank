@@ -35,9 +35,17 @@ public class AccountService {
 
     public Mono<AccountResponseDTO> findById(Long id){
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Account not found, cannot create get it")))
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
                 .map(AccountMapper::toResponse);
 
+    }
+
+    // find by iban
+
+    public Mono<AccountResponseDTO> findById(String iban){
+        return repository.findByIban(iban)
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
+                .map(AccountMapper::toResponse);
     }
 
 

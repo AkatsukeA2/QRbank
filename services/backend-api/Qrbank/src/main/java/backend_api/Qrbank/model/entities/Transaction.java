@@ -12,6 +12,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -28,7 +29,7 @@ public class Transaction extends Model {
     private Long receiverAccountId;
 
     @Column("amount")
-    private Double amount;
+    private BigDecimal amount;
 
     @Column("type")
     private TransactionType type;
@@ -36,6 +37,6 @@ public class Transaction extends Model {
     @Column("status")
     private TransactionStatus status;
 
-    public Transaction(Long id, Long senderAccountId, @NotBlank Double amount, @NotBlank TransactionType type, TransactionStatus status, LocalDateTime createdAt) {
+    public Transaction(Long id, Long senderAccountId, @NotBlank BigDecimal amount, @NotBlank TransactionType type, TransactionStatus status, LocalDateTime createdAt) {
     }
 }

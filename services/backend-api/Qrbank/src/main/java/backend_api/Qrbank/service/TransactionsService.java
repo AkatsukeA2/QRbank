@@ -24,19 +24,17 @@ import java.time.LocalDateTime;
 public class TransactionsService {
 
     private final TransactionRepository repository;
-    private final AccountRepository accountRepository;
-    private final LedgerService ledgerService;
+    private final AccountRepository accountRepository ;
+    private final LedgerService ledgerService ;
 
 
-    @Transactional
     public Mono<TransactionResponseDTO> transfer(Long accountId, TransactionRequestDTO requestDTO){
 
         if (accountId.equals(requestDTO.receiverAccountID())) {
             return Mono.error(new RuntimeException("Não pode transferir para si próprio"));
         }
 
-        Double amount = requestDTO.amount();
-        BigDecimal amount2 = BigDecimal.valueOf(amount);
+        BigDecimal amount2 =requestDTO.amount();
         TransactionType type = TransactionType.valueOf(requestDTO.type());
 
         return accountRepository.findById(accountId)
@@ -45,78 +43,41 @@ public class TransactionsService {
 
                         switch (type) {
 
-                            case TRANSFER ->
+                            case TRANSFER -> handleTransfer( requestDTO, amount2, accountId);
 
-                                    accountRepository.findById(requestDTO.receiverAccountID())
-                                            .switchIfEmpty(Mono.error(new RuntimeException("Conta destino inexistente")))
-                                            .flatMap(receiver ->
+                            case DEPOSIT -> handleDeposit(requestDTO, amount2, accountId);
 
-                                                    // 1. salva transaction primeiro
-                                                    saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED)
-                                                            .flatMap(transaction ->
 
-                                                                    // 2. executa movimentações
-                                                                    debit(accountId, amount)
-                                                                            .then(credit(receiver.getId(), amount))
+                            case WITHDRAW -> handleWithdraw(requestDTO, amount2, accountId);
 
-                                                                            // 3. ledger depois de tudo ok
-                                                                            .then(Mono.when(
 
-                                                                                    ledgerService.createEntry(
-                                                                                            accountId,
-                                                                                            transaction.id(),
-                                                                                            LedgerType.DEBIT,
-                                                                                            amount2
-                                                                                    ),
-
-                                                                                    ledgerService.createEntry(
-                                                                                            receiver.getId(),
-                                                                                            transaction.id(),
-                                                                                            LedgerType.CREDIT,
-                                                                                            amount2
-                                                                                    )
-
-                                                                            ).thenReturn(transaction))
-
-                                                            )
-                                            );
-
-                            case DEPOSIT ->
-
-                                    saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED)
-                                            .flatMap(transaction ->
-
-                                                    credit(accountId, amount)
-                                                            .then(
-                                                                    ledgerService.createEntry(
-                                                                            accountId,
-                                                                            transaction.id(),
-                                                                            LedgerType.CREDIT,
-                                                                            amount2
-                                                                    )
-                                                            )
-                                                            .thenReturn(transaction)
-
-                                            );
-                            case WITHDRAW ->
-
-                                    saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED)
-                                            .flatMap(transaction ->
-
-                                                    debit(accountId, amount)
-                                                            .then(
-                                                                    ledgerService.createEntry(
-                                                                            accountId,
-                                                                            transaction.id(),
-                                                                            LedgerType.DEBIT,
-                                                                            amount2
-                                                                    )
-                                                            )
-                                                            .thenReturn(transaction)
-
-                                            );
                         }
                 );
+    }
+
+    public Mono<TransactionResponseDTO> IbanTransfer(Long accountId, String iban, BigDecimal amount){
+        return accountRepository.findByIban(iban)
+                .switchIfEmpty(Mono.error(new RuntimeException("Account not found")))
+                .flatMap( receiver ->{
+                            if (accountId.equals(receiver.getId())) {
+                                return Mono.error(new RuntimeException("Não pode transferir para si próprio"));
+                            }
+
+                             ;
+                            return transfer(
+                                    accountId,
+                                    TransactionRequestDTO.builder()
+                                            .amount(amount)
+                                            .type(TransactionType.TRANSFER.toString())
+                                            .receiverAccountID(receiver.getId())
+                                            .build());
+
+                }
+
+
+
+                );
+
     }
 
     public Mono<TransactionResponseDTO> getTransactionById(Long id){
@@ -138,7 +99,84 @@ public class TransactionsService {
     }
 
 
-    private Mono<Void> debit(Long accountId, Double amount){
+
+    private Mono<TransactionResponseDTO> handleTransfer(TransactionRequestDTO requestDTO,BigDecimal amount2, Long accountId){
+            return accountRepository.findById(requestDTO.receiverAccountID())
+                            .switchIfEmpty(Mono.error(new RuntimeException("Conta destino inexistente")))
+                            .flatMap(receiver ->
+
+                                    // 1. salva transaction primeiro
+                                    saveTransaction(requestDTO, accountId, TransactionStatus.PENDING)
+                                            .flatMap(transaction ->
+
+                                                    // 2. executa movimentações
+                                                    debit(accountId, amount2)
+                                                            .then(credit(receiver.getId(), amount2))
+
+                                                            // 3. ledger depois de tudo ok
+                                                            .then(Mono.when(
+
+                                                                            ledgerService.createEntry(
+                                                                                    accountId,
+                                                                                    transaction.id(),
+                                                                                    LedgerType.DEBIT,
+                                                                                    amount2
+                                                                            ),
+
+                                                                            ledgerService.createEntry(
+                                                                                    receiver.getId(),
+                                                                                    transaction.id(),
+                                                                                    LedgerType.CREDIT,
+                                                                                    amount2
+                                                                            )
+
+                                                                    ).then(saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED))
+                                                                    .thenReturn(transaction))
+
+                                            )
+                            );
+
+    }
+
+    private Mono<TransactionResponseDTO> handleDeposit(TransactionRequestDTO requestDTO,BigDecimal amount2, Long accountId){
+        return saveTransaction(requestDTO, accountId, TransactionStatus.PENDING)
+                .flatMap(transaction ->
+
+                        credit(accountId, amount2)
+                                .then(
+                                        ledgerService.createEntry(
+                                                accountId,
+                                                transaction.id(),
+                                                LedgerType.CREDIT,
+                                                amount2
+                                        )
+                                ).then(saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED))
+                                .thenReturn(transaction)
+
+                );
+    }
+
+    private Mono<TransactionResponseDTO> handleWithdraw(TransactionRequestDTO requestDTO,BigDecimal amount2, Long accountId){
+
+        return saveTransaction(requestDTO, accountId, TransactionStatus.PENDING)
+                .flatMap(transaction ->
+
+                        debit(accountId, amount2)
+                                .then(
+                                        ledgerService.createEntry(
+                                                accountId,
+                                                transaction.id(),
+                                                LedgerType.DEBIT,
+                                                amount2
+                                        )
+                                ).then(saveTransaction(requestDTO, accountId, TransactionStatus.COMPLETED))
+                                .thenReturn(transaction)
+
+                );
+
+    }
+
+    private Mono<Void> debit(Long accountId, BigDecimal amount){
         return accountRepository.debitIfEnough(accountId, amount)
                 .flatMap(row -> {
                     if (row == 0) return Mono.error(new RuntimeException("Saldo insuficiente"));
@@ -146,12 +184,12 @@ public class TransactionsService {
                 });
     }
 
-    private Mono<Void> credit(Long accountId, Double amount){
+    private Mono<Void> credit(Long accountId, BigDecimal amount){
         return accountRepository.credit(accountId, amount)
                 .then();
     }
 
-    private Mono<Void> withdraw(Long accountId, Double amount){
+    private Mono<Void> withdraw(Long accountId, BigDecimal amount){
         return accountRepository.withdraw(accountId, amount)
                 .then();
     }
