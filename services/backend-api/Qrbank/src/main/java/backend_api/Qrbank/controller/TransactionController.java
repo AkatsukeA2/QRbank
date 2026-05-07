@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/transactions")
@@ -47,6 +49,12 @@ public class TransactionController {
         return service.transfer(id,requestDTO).map(ResponseEntity::ok);
     }
 
+
+    @PostMapping("/tranfer/{id}/iban")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Mono<ResponseEntity<TransactionResponseDTO>> Ibantransfer(@RequestBody String iban, @PathVariable Long id, @RequestBody BigDecimal amount){
+        return service.IbanTransfer(id,iban,amount).map(ResponseEntity::ok);
+    }
 
 
 }
