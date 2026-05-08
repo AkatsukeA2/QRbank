@@ -14,6 +14,7 @@ public record AuditResponseDTO(
         Long entityId,
         String status,
         String description,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String ip
 ) {
 }
