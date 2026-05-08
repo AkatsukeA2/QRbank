@@ -4,9 +4,6 @@ import backend_api.Qrbank.dto.KycRequestDTO;
 import backend_api.Qrbank.dto.KycResponseDTO;
 import backend_api.Qrbank.model.entities.Kyc;
 import backend_api.Qrbank.model.enums.KycStatus;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 
 public class KycMapper {
 
