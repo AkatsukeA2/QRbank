@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 import java.sql.Date;
+import java.time.LocalDate;
+
 @Builder
 public record KycRequestDTO(
 
@@ -21,7 +23,7 @@ public record KycRequestDTO(
         String documentNumber,
 
         @NotBlank
-        Date birthDate,
+        LocalDate birthDate,
 
         @Nullable
         String nationality,

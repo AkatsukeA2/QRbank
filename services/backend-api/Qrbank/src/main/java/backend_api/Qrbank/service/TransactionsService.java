@@ -39,8 +39,8 @@ public class TransactionsService {
 
         return accountRepository.findById(accountId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Conta remetente inexistente")))
-                .flatMap(sender ->
-
+                .flatMap(sender -> {
+                        if (!sender.isActive())return Mono.error(new RuntimeException("Account not active"));
                         switch (type) {
 
                             case TRANSFER -> handleTransfer( requestDTO, amount2, accountId);
@@ -52,7 +52,8 @@ public class TransactionsService {
 
 
                         }
-                );
+                    return saveTransaction(requestDTO, accountId, TransactionStatus.PENDING);
+                });
     }
 
     public Mono<TransactionResponseDTO> IbanTransfer(Long accountId, String iban, BigDecimal amount){

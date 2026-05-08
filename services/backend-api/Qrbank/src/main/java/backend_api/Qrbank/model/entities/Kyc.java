@@ -11,6 +11,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -37,7 +38,7 @@ public class Kyc {
     private String documentNumber;
 
     @Column("birth_date")
-    private Date birthDate;
+    private LocalDate birthDate;
 
     @Column("nationality")
     private String nationality;
