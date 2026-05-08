@@ -1,5 +1,6 @@
 package backend_api.Qrbank.service;
 
+import backend_api.Qrbank.annotation.Auditable;
 import backend_api.Qrbank.dto.TransactionRequestDTO;
 import backend_api.Qrbank.dto.TransactionResponseDTO;
 import backend_api.Qrbank.model.entities.Account;
@@ -27,7 +28,7 @@ public class TransactionsService {
     private final AccountRepository accountRepository ;
     private final LedgerService ledgerService ;
 
-
+    @Auditable(action = "TRANSFER")
     public Mono<TransactionResponseDTO> transfer(Long accountId, TransactionRequestDTO requestDTO){
 
         if (accountId.equals(requestDTO.receiverAccountID())) {
@@ -40,19 +41,15 @@ public class TransactionsService {
         return accountRepository.findById(accountId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Conta remetente inexistente")))
                 .flatMap(sender -> {
-                        if (!sender.isActive())return Mono.error(new RuntimeException("Account not active"));
-                        switch (type) {
 
-                            case TRANSFER -> handleTransfer( requestDTO, amount2, accountId);
+                    if (!sender.isActive())
+                        return Mono.error(new RuntimeException("Account not active"));
 
-                            case DEPOSIT -> handleDeposit(requestDTO, amount2, accountId);
-
-
-                            case WITHDRAW -> handleWithdraw(requestDTO, amount2, accountId);
-
-
-                        }
-                    return saveTransaction(requestDTO, accountId, TransactionStatus.PENDING);
+                    return switch (type) {
+                        case TRANSFER -> handleTransfer(requestDTO, amount2, accountId);
+                        case DEPOSIT -> handleDeposit(requestDTO, amount2, accountId);
+                        case WITHDRAW -> handleWithdraw(requestDTO, amount2, accountId);
+                    };
                 });
     }
 

@@ -17,7 +17,8 @@ public class AuditMapper {
                 .entityId(requestDTO.entityId())
                 .status(requestDTO.status())
                 .description(requestDTO.description())
-                .createdAt(LocalDateTime.now())
+                .createdAt(requestDTO.createdAt())
+                .ipAddress(requestDTO.ip())
                 .build();
     }
 
@@ -31,6 +32,7 @@ public class AuditMapper {
                 .status(entity.getStatus())
                 .description(entity.getDescription())
                 .createdAt(LocalDateTime.now())
+                .ip(entity.getIpAddress())
                 .build();
    }
 }
