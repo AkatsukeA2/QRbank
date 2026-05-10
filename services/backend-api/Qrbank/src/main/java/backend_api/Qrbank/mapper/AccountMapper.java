@@ -3,6 +3,7 @@ package backend_api.Qrbank.mapper;
 import backend_api.Qrbank.dto.AccountRequestDTO;
 import backend_api.Qrbank.dto.AccountResponseDTO;
 import backend_api.Qrbank.model.entities.Account;
+import backend_api.Qrbank.model.enums.IbanCurrency;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -31,20 +32,15 @@ public class AccountMapper {
 
         String accountNumber = generateAccountNumber();
         String iban = generateIBAN(accountNumber,requestDTO);
-        return new Account(
-                null,
-                requestDTO.userId(),
-                accountNumber,
-                iban,
-                BigDecimal.ZERO,
-                requestDTO.currency(),
-                true,
-                LocalDateTime.now(),
-                null,
-                null
-
-
-        );
+        return Account.builder()
+                .userId(requestDTO.userId())
+                .accountNumber(accountNumber)
+                .currency(IbanCurrency.valueOf(requestDTO.currency().toUpperCase()))
+                .iban(iban)
+                .balance(BigDecimal.ZERO)
+                .createdAt(LocalDateTime.now())
+                .active(true)
+                .build();
     }
 
     @NotNull

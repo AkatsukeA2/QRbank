@@ -15,9 +15,9 @@ public record TransactionResponseDTO(
 
         TransactionStatus status,
 
-        Long senderWalletId,
+        Long senderAccountId,
 
-        Long receiverWalletId,
+        Long receiverAccountId,
 
         LocalDateTime createdAt
 ) {

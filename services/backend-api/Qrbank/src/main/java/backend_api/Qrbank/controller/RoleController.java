@@ -31,7 +31,7 @@ public class RoleController {
         return roleService.getAllRoles();
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/by-name/{name}")
     public Mono<RoleResponseDTO> getRoleByName(@PathVariable String name) {
         return roleService.getRoleByName(name);
     }
@@ -47,15 +47,15 @@ public class RoleController {
     //soft delete
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<GuardianResponseDTO>> softDelete(@PathVariable Long id){
+    public Mono<ResponseEntity<RoleResponseDTO>> softDelete(@PathVariable Long id){
         return roleService.softDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
     // restore
     @PatchMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<GuardianResponseDTO>> restore(@PathVariable Long id){
-        return roleService.restoreRole(id).then(Mono.just(ResponseEntity.noContent().build()));
+    public Mono<Void> restore(@PathVariable Long id){
+        return roleService.restoreRole(id).then();
     }
 
     @DeleteMapping("/{id}/hard")

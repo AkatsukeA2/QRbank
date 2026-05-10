@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -61,6 +63,10 @@ public class User {
     @NotBlank
     @Column("deleted_at")
     private LocalDateTime deletedAt;
+
+    @NotBlank
+    @Column("date_of_birth")
+    private LocalDate dateOfBirth;
 
 
 

@@ -12,13 +12,13 @@ public record AccountResponseDTO(
         Long id,
 
         @NotBlank
-        String accountNumer,
+        String accountNumber,
 
         @NotBlank
         String iban,
 
         @NotBlank
-        Double balance,
+        BigDecimal balance,
 
         @NotBlank
         IbanCurrency currency,

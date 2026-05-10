@@ -25,12 +25,10 @@ public class RoleMapper {
     }
 
     public static Role toEntity(RoleRequestDTO dto) {
-        return new Role(
-                null,
-                String.valueOf(dto.role()),
-                dto.description(),
-                LocalDateTime.now(),
-                null
-        );
+        return Role.builder()
+                .roleName(String.valueOf(dto.role()))
+                .description(dto.description())
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

@@ -20,6 +20,7 @@ public class UserMapper {
                user.getPhoneNumber(),
                user.getRoleID(),
                user.getGuardianID(),
+               user.getDateOfBirth(),
                user.getCreatedAt(),
                user.getUpdatedAt(),
                user.getDeletedAt()
@@ -38,7 +39,8 @@ public class UserMapper {
                 requestDTO.guardianID(),
                 LocalDateTime.now(),
                 null,
-                null
+                null,
+                requestDTO.dateOfBirth()
 
         );
     }

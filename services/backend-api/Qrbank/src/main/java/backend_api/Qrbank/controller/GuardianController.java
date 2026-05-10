@@ -33,7 +33,7 @@ public class GuardianController {
         return service.findGuardianByID(id).map(ResponseEntity::ok);
     }
 
-    // get all
+    // get a
     @GetMapping
     @ResponseStatus(HttpStatus.FOUND)
     public Flux<GuardianResponseDTO> getAll(){

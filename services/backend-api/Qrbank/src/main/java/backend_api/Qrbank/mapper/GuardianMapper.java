@@ -26,17 +26,17 @@ public class GuardianMapper {
     }
 
     public static Guardian toEntity(GuardianRequestDTO requestDTO){
-        return new Guardian(
-                null,
-                requestDTO.firstName(),
-                requestDTO.lastName(),
-                requestDTO.email(),
-                requestDTO.phoneNumber(),
-                requestDTO.relationship(),
-                LocalDateTime.now(),
-                null,
-                null
-        );
+        return Guardian.builder()
+                .firstName(requestDTO.firstName())
+                .lastName(requestDTO.lastName())
+                .email(requestDTO.email())
+                .phoneNumber(requestDTO.phoneNumber())
+                .guardianRelationship(requestDTO.relationship())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+
+
     }
 
 }

@@ -15,22 +15,22 @@ public interface AccountRepository extends ReactiveCrudRepository<Account, Long>
     @Query("""
         UPDATE accounts
         SET balance = balance - :amount
-        WHERE id = :acountId
-        AND balance >= : amount
+        WHERE id = :accountId
+        AND balance >= :amount
     """)
     Mono<Integer>  debitIfEnough(Long accountId, BigDecimal amount);
 
     @Query("""
         UPDATE accounts
         SET balance = balance + :amount
-        WHERE id = :acountId
+        WHERE id = :accountId
     """)
     Mono<Integer>  credit(Long accountId, BigDecimal amount);
 
     @Query("""
         UPDATE accounts
         SET balance = balance - :amount
-        WHERE id = :acountId
+        WHERE id = :accountId
     """)
     Mono<Integer>  withdraw(Long accountId, BigDecimal amount);
 

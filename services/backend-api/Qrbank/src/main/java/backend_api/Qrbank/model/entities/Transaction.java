@@ -6,6 +6,7 @@ import backend_api.Qrbank.model.enums.TransactionStatus;
 import backend_api.Qrbank.model.enums.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -16,10 +17,28 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table("transactions")
-public class Transaction extends Model {
+public class Transaction {
+
+    @Id
+    @NotBlank
+    @Column("id")
+    protected Long id;
+
+    @NotBlank
+    @Column("created_at")
+    protected LocalDateTime createdAt;
+
+    @NotBlank
+    @Column("updated_at")
+    protected LocalDateTime updatedAt;
+
+    @NotBlank
+    @Column("deleted_at")
+    protected LocalDateTime deletedAt;
 
 
     @Column("sender_account_id")
@@ -37,6 +56,5 @@ public class Transaction extends Model {
     @Column("status")
     private TransactionStatus status;
 
-    public Transaction(Long id, Long senderAccountId, @NotBlank BigDecimal amount, @NotBlank TransactionType type, TransactionStatus status, LocalDateTime createdAt) {
-    }
+
 }

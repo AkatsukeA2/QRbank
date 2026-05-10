@@ -5,7 +5,9 @@ import backend_api.Qrbank.dto.GuardianResponseDTO;
 import backend_api.Qrbank.dto.UserRequestDTO;
 import backend_api.Qrbank.dto.UserResponseDTO;
 import backend_api.Qrbank.mapper.UserMapper;
+import backend_api.Qrbank.service.EmailService;
 import backend_api.Qrbank.service.UserService;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import reactor.core.publisher.Mono;
 public class UserController {
 
     private final UserService service;
+    private final EmailService emailService;
 
     // create user
     @PostMapping
@@ -56,24 +59,34 @@ public class UserController {
     // restore
     @PatchMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<UserResponseDTO>> restore(@PathVariable Long id){
-        return service.restoreUser(id).then(Mono.just(ResponseEntity.noContent().build()));
+    public Mono<Void> restore(@PathVariable Long id){
+        return service.restoreUser(id).then();
     }
 
     // hard delete
     @DeleteMapping("/{id}/hard")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<UserResponseDTO>> hardDelete(@PathVariable Long id){
-        return service.hardDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
+    public Mono<Void> hardDelete(@PathVariable Long id){
+        return service.hardDelete(id).then();
     }
 
     //
-    @PatchMapping("/{id}/{newPassWord}")
+    @PatchMapping("/{id}/newPassWord")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<UserResponseDTO>> changePassWord(@PathVariable Long id,@PathVariable String newPassWord){
+    public Mono<ResponseEntity<UserResponseDTO>> changePassWord(@PathVariable Long id,@RequestBody String newPassWord){
         return service.updateUserPassWor(id,newPassWord).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
+    @GetMapping("/test-email")
+    public Mono<String> test() {
+        return emailService
+                .sendEmail(
+                        "francneto745@gmail.com",
+                        "Teste QRbank",
+                        "O QRbank da-te as boas vindas cliente Bicho neto"
+                )
+                .thenReturn("Email enviado");
+    }
 
 
 

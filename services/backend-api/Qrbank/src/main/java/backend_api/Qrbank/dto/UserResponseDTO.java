@@ -3,6 +3,8 @@ package backend_api.Qrbank.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record UserResponseDTO(
@@ -31,6 +33,9 @@ public record UserResponseDTO(
 
         @NotBlank
         Long guardianID,
+
+        @NotBlank
+        LocalDate dateOfBirth,
 
         @NotBlank
         LocalDateTime createdAt,
