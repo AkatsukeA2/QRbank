@@ -25,10 +25,10 @@ public class LedgerService {
                 .flatMap(lastBalance ->{
 
                     BigDecimal newBalance = (type == LedgerType.DEBIT )
-                            ? lastBalance.add(amount)
-                            : lastBalance.subtract(amount);
-
-                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) return Mono.error(new RuntimeException("Saldo insuficiente"));
+                            ? lastBalance.subtract(amount)
+                            : lastBalance.add(amount);
+                    System.out.println(newBalance+" kkkkkkkkkkkkkkkkkkkkkkksbf");
+                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) return Mono.error(new RuntimeException("Saldo insuficiente dddd"));
 
                     Ledger ledger = Ledger.builder()
                             .accountId(accountId)

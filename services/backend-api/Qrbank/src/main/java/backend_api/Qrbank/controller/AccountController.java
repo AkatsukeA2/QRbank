@@ -20,13 +20,15 @@ import java.util.Map;
 public class AccountController {
 
     private final AccountService service;
-    private LedgerService ledgerService;
+    private final LedgerService ledgerService;
 
     // create account
-    @PostMapping("/")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseEntity<AccountResponseDTO>> create(@RequestBody AccountRequestDTO requestDTO){
-        return service.createAccount(requestDTO).map(ResponseEntity::ok);
+
+        return service.createAccount(requestDTO)
+                .map(res -> ResponseEntity.status(HttpStatus.CREATED).body(res));
     }
 
     // get by id
@@ -37,17 +39,17 @@ public class AccountController {
     }
 
     // find all
-    @GetMapping("/")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Flux<AccountResponseDTO> getAll(){
         return service.findByAll();
     }
 
     // find by user id
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<AccountResponseDTO>> getByUSerID(@PathVariable Long userID){
-        return service.findByUser(userID).map(ResponseEntity::ok);
+    public Mono<ResponseEntity<AccountResponseDTO>> getByUSerID(@PathVariable Long userId){
+        return service.findByUser(userId).map(ResponseEntity::ok);
     }
 
     // deactivate account
@@ -68,19 +70,19 @@ public class AccountController {
     // restore
     @PatchMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<AccountResponseDTO>> restore(@PathVariable Long id){
-        return service.restoreAccount(id).then(Mono.just(ResponseEntity.noContent().build()));
+    public Mono<Void> restore(@PathVariable Long id){
+        return service.restoreAccount(id).then();
     }
 
     // hard delete
     @PatchMapping("/{id}/hard")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<AccountResponseDTO>>hardDelete(@PathVariable Long id){
-        return service.hardDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
+    public Mono<Void>hardDelete(@PathVariable Long id){
+        return service.hardDelete(id).then();
     }
 
 
-    @GetMapping("/account/{accountId}")
+    @GetMapping("/{accountId}/ledger")
     public Flux<LedgerResponseDTO> getStatement(@PathVariable Long accountId) {
         return ledgerService.getStatement(accountId);
     }

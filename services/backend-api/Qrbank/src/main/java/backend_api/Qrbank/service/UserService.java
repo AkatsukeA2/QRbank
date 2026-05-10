@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 
 @Service
 @AllArgsConstructor
@@ -33,7 +35,11 @@ public class UserService {
         if (user.getRoleID() == null) {
             return Mono.error(new RuntimeException("RoleId is required"));
         }
+        boolean isMinor = isMinor(requestDTO.dateOfBirth());
 
+        if (isMinor && requestDTO.guardianID() == null) {
+            return Mono.error(new RuntimeException("Menor de idade precisa de guardian"));
+        }
         return roleRepository.findById(user.getRoleID())
                 .switchIfEmpty(Mono.error(new RuntimeException("Role not found")))
                 .flatMap(role -> {
@@ -116,5 +122,9 @@ public class UserService {
     public Mono<Void> hardDelete(Long id){
         return repository.deleteById(id);
 
+    }
+
+    private  boolean isMinor(LocalDate birthDate) {
+        return Period.between(birthDate, LocalDate.now()).getYears() < 18;
     }
 }

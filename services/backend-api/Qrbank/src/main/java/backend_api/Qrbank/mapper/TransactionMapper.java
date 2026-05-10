@@ -23,14 +23,12 @@ public class TransactionMapper {
     }
 
     public static Transaction toEntity(TransactionRequestDTO requestDTO){
-        return new Transaction(
-                null,
-                requestDTO.receiverAccountID(),
-                requestDTO.amount(),
-                TransactionType.valueOf(requestDTO.type()),
-                null,
-                LocalDateTime.now()
-        );
+        return Transaction.builder()
+                .receiverAccountId(requestDTO.receiverAccountID())
+                .amount(requestDTO.amount())
+                .type(TransactionType.valueOf(requestDTO.type()))
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
 

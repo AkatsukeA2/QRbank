@@ -2,14 +2,15 @@ package backend_api.Qrbank.dto;
 
 import backend_api.Qrbank.model.enums.IbanCurrency;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record AccountRequestDTO(
 
-        @NotBlank
+        @NotNull
         Long userId,
 
         @NotBlank
-        IbanCurrency currency
+        String currency
 
 ) {
 }

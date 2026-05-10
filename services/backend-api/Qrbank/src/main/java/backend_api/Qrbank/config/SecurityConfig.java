@@ -32,6 +32,12 @@ public class SecurityConfig {
 
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/auth/**").permitAll()
+                        .pathMatchers("/api/users/test-email").permitAll()
+                        .pathMatchers("/api/guardians/**").permitAll()
+                        .pathMatchers("/api/users/**").permitAll()
+                        .pathMatchers("/api/roles/**").permitAll()
+                        .pathMatchers("/api/accounts/**")
+                        .permitAll().pathMatchers("/api/transactions/**").permitAll()
                         .anyExchange().authenticated()
                 )
 
