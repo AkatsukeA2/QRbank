@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:qrbank_app/screens/splash_screen%20.dart';
 import 'package:qrbank_app/widgets/top_text.dart';
+import 'package:qrbank_app/widgets/top_text_center.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,20 +24,17 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+             
               // Top bar — só "Criar Conta" (sem botão Voltar)
-              const TopText(text: 'Criar Conta', route: '/onboarding', paddingRight: 0),
-
-              // Título
-              const Center(
-                child: Text(
-                  'Faça seu Login',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF5B3DBE),
-                  ),
+              const TopText(text: 'Criar Conta', route: '/register', paddingRight: 0),
+             Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const QrBankLogo(size: 145),
                 ),
               ),
+              // Título
+              const TopTextCenter(title:'Faça seu Login'),
               const SizedBox(height: 40),
 
               // Label E-mail
@@ -261,6 +260,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: GestureDetector(
                           onTap: () {
                             // TODO: navegar para cadastro
+                            Navigator.of(context).pushReplacementNamed(
+                              '/register',
+                              // MaterialPageRoute(builder: (_) => const LoginScreen()), --- IGNORE ---
+                            );
                           },
                           child: const Text(
                             'Cadastre-se',
@@ -287,29 +290,3 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final Widget child;
-
-  const _SocialButton({required this.onTap, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: const Color(0xFFDDD6F3),
-            width: 1.5,
-          ),
-        ),
-        child: Center(child: child),
-      ),
-    );
-  }
-}
