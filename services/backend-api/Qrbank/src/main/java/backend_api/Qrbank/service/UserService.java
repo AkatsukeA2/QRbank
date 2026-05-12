@@ -63,6 +63,12 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new RuntimeException("USer not found"))).map(UserMapper::toResponseDTO);
     }
 
+    // find by user email
+    public Mono<UserResponseDTO> findByUserEmail(String email){
+        return repository.findByEmail(email).filter(user -> user.getDeletedAt() == null)
+                .switchIfEmpty(Mono.error(new RuntimeException("USer not found"))).map(UserMapper::toResponseDTO);
+    }
+
     // find all users
     public Flux<UserResponseDTO> findAllUser(){
         return repository.findAll()
