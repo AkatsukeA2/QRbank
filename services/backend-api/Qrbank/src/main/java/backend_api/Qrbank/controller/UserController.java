@@ -35,6 +35,11 @@ public class UserController {
     public Mono<ResponseEntity<UserResponseDTO>> getByID(@PathVariable Long id){
         return service.findByUserID(id).map(ResponseEntity::ok);
     }
+    // get users by id
+    @GetMapping("/{email}")
+    public Mono<ResponseEntity<UserResponseDTO>> getByEmail(@PathVariable String email){
+        return service.findByUserEmail(email).map(ResponseEntity::ok);
+    }
 
     // get all users
     @GetMapping

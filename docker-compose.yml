@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build:
+      context: ./services/backend-api/Qrbank
+    container_name: qrbank-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      JWT_SECRET: 8qOaQgNgN6cOtQNPPIhnB8lzrQ2nC9bCm8S38swyoDA=
+
+      MAIL_USER: akatsukia2itel@gmail.com
+
+      # EMAIL
+      MAIL_PASS: gfvexceiblunzpzm
