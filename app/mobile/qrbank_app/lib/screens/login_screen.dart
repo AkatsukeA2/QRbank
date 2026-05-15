@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:qrbank_app/model/user.dart';
 import 'package:qrbank_app/screens/splash_screen%20.dart';
+import 'package:qrbank_app/services/auth_service.dart';
+import 'package:qrbank_app/services/user_service.dart';
 import 'package:qrbank_app/widgets/top_text.dart';
 import 'package:qrbank_app/widgets/top_text_center.dart';
 
@@ -12,6 +15,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Campo E-mail
               TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -94,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Campo Senha
               TextField(
+                controller: _passwordController,
                 obscureText: _obscurePassword,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -166,7 +181,42 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
+                    final email = _emailController.text.trim();
+                    final password = _passwordController.text.trim();
+
                     // TODO: lógica de login
+                    if (email.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Por favor, preencha todos os campos.'),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
+
+                    AuthService().login(email, password).then((result) {
+                      if (result?['tokenType'] == 'Bearer') {
+                        // Login bem-sucedido, navegar para a tela principal
+                        UserService().getUserByEmail(email).then((user) {
+                          if (user != null) {
+                            UserService().setCurrentUser(user);
+                          }
+                        });
+                        Navigator.of(context).pushReplacementNamed('/home');
+                      } else {
+                        // Login falhou, mostrar mensagem de erro
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('E-mail ou senha inválidos.'),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                      }
+                    });
+                    
+
+
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7B5FC4),
@@ -288,5 +338,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  
 }
 
