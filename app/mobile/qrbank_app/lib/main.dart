@@ -13,6 +13,7 @@ import 'package:qrbank_app/screens/splash_screen%20.dart';
 import 'package:qrbank_app/screens/transactions_screen.dart';
 import 'package:qrbank_app/screens/transfer_screen.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
@@ -29,10 +30,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8B6FD4)),
         useMaterial3: true,
       ),
-      initialRoute: "/home",
+      initialRoute: "/",
       routes: {
         '/register': (context) => const RegisterScreen(),
-        //'/': (context) => const SplashScreen(),
+        '/': (context) => const SplashScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         "/login": (context) => const LoginScreen(),
         "/register/guardians": (context) => const GuadianRegisterScreen(),
