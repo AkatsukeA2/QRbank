@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:qrbank_app/model/register.dart';
 import 'package:qrbank_app/model/user.dart';
 
 class AuthService {
-  final String _httpUrl = 'http://localhost:8080/api/auth/login';
+  final String _loginUrl = 'http://localhost:8080/api/auth/login';
+  final String _registerUrl = 'http://localhost:8080/api/auth/register';
 
   Future<Map<String, dynamic>?> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('$_httpUrl'),
+      Uri.parse('$_loginUrl'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
@@ -19,6 +21,28 @@ class AuthService {
         'tokenType': data['tokenType'],
         'refreshToken': data['refreshToken'],
         };
+    } else {
+      return null;
+    }
+  }
+
+
+  Future<Map<String, dynamic>?> register(String email, String password, String name, DateTime age, String phone) async {
+    final newName = name.split('');
+    Register register = new Register(email: email, password: password, firtName: newName[0], lastName: newName[1], phone: phone, dateOfBirth: age);
+    final response = await http.post(
+      Uri.parse('$_loginUrl'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(register),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return {
+        'token': data['token'],
+        'tokenType': data['tokenType'],
+        'refreshToken': data['refreshToken'],
+      };
     } else {
       return null;
     }

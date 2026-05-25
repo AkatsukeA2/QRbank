@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qrbank_app/screens/splash_screen%20.dart';
+import 'package:qrbank_app/services/auth_service.dart';
+import 'package:qrbank_app/services/user_service.dart';
 import 'package:qrbank_app/widgets/requared_lable.dart';
 import 'package:qrbank_app/widgets/top_text_center.dart';
 
@@ -12,6 +14,13 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _password1Controller = TextEditingController();
+  final TextEditingController _password2Controller = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +47,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 8),
 
               TextField(
+                controller: _nameController,
                 keyboardType: TextInputType.name,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
-                  hintText: 'Seu nome',
+                  hintText: 'Exemplo: Obed Jorge',
                   hintStyle: const TextStyle(
                     color: Color(0xFFB8A8E8),
                     fontSize: 14,
@@ -73,6 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               RequaredLable(text: 'Digite seu email'),
 
               TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -108,6 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               RequaredLable(text: 'Digite seu Nº telefone'),
 
               TextField(
+                controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -142,6 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               const RequaredLable(text: 'Imforme sua data de nascimento'),
               TextField(
+                controller: _ageController,
                 keyboardType: TextInputType.datetime,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -175,6 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               const RequaredLable(text: 'Escollha uma senha'),
               TextField(
+                controller: _password1Controller,
                 obscureText: _obscurePassword,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -220,6 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               const RequaredLable(text: 'Confirme uma senha'),
               TextField(
+                controller: _password2Controller,
                 obscureText: _obscurePassword,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -268,7 +283,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: lógica de login
+                    // TODO: lógica de registro
+                    if (_password1Controller != _password2Controller) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('As senhas não coensidem'),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
+                    final email = _emailController.text.trim();
+                    final name = _nameController.text.trim();
+                    final phone = _phoneController.text.trim();
+                    final password = _password2Controller.text.trim();
+                    final age =_ageController;
+                    AuthService().register(email, password, name, age as DateTime, phone ).then((result) {
+                      if (result?['tokenType'] == 'Bearer') {
+                        // Login bem-sucedido, navegar para a tela principal
+                        UserService().getUserByEmail(email).then((user) {
+                          if (user != null) {
+                            UserService().setCurrentUser(user);
+                          }
+                        });
+                        Navigator.of(context).pushReplacementNamed('/home');
+                      } else {
+                        // Login falhou, mostrar mensagem de erro
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('E-mail ou senha inválidos.'),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                      }
+                    });
+
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7B5FC4),
