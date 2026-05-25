@@ -1,12 +1,11 @@
 package backend_api.Qrbank.service;
 
-import backend_api.Qrbank.dto.AuthLoginRequestDTO;
-import backend_api.Qrbank.dto.AuthRegisterRequestDTO;
-import backend_api.Qrbank.dto.AuthResponseDTO;
-import backend_api.Qrbank.dto.RefreshRequestDTO;
+import backend_api.Qrbank.dto.*;
+import backend_api.Qrbank.model.entities.Account;
 import backend_api.Qrbank.model.entities.Role;
 import backend_api.Qrbank.model.enums.RoleName;
 import backend_api.Qrbank.model.entities.User;
+import backend_api.Qrbank.repository.AccountRepository;
 import backend_api.Qrbank.repository.RoleRepository;
 import backend_api.Qrbank.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -24,6 +23,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RoleRepository roleRepository;
+    private final AccountService accountService;
+    private final AccountRepository accountRepository;
     private final AuthRefreshTokesService refreshTokesService;
 
 
@@ -50,7 +51,14 @@ public class AuthService {
     public Mono<AuthResponseDTO> register(AuthRegisterRequestDTO requestDTO) {
         return validateUserDoesNotExist(requestDTO)
                 .then(getDefaultRole())
-                .flatMap(role -> createUser(requestDTO, role))
+                .flatMap(role -> {
+                    return createUser(requestDTO, role).flatMap(user -> accountService.createAccount(
+                            AccountRequestDTO.builder()
+                                    .userId(user.getId())
+                                    .currency("AOA")
+                                    .build())) ;
+
+                })
                 .flatMap(this::generateTokens);
     }
 
@@ -111,18 +119,25 @@ public class AuthService {
         user.setLastName(requestDTO.lastName());
         user.setRoleID(role.getId());
         user.setPhoneNumber(requestDTO.phoneNumber());
+        user.setDateOfBirth(requestDTO.age());
         return userRepository.save(user);
     }
 
-    private Mono<AuthResponseDTO> generateTokens(User user) {
-        return roleRepository.findById(user.getRoleID())
-                .flatMap(role ->
-                        refreshTokesService.createRefreshToken(user)
-                                .map(refreshToken -> new AuthResponseDTO(
-                                        jwtService.generateToken(user, RoleName.valueOf(role.getRoleName())),
-                                        refreshToken.getToken(),
-                                        "Bearer"
-                                ))
-                );
+    private Mono<AuthResponseDTO> generateTokens(AccountResponseDTO account) {
+
+        return accountRepository.findById(account.id())
+                .flatMap(account1 ->
+                        userRepository.findById(account1.getUserId())
+                                .flatMap(user -> roleRepository.findById(user.getRoleID())
+                                        .flatMap(role ->
+                                                refreshTokesService.createRefreshToken(user)
+                                                        .map(refreshToken -> new AuthResponseDTO(
+                                                                jwtService.generateToken(user, RoleName.valueOf(role.getRoleName())),
+                                                                refreshToken.getToken(),
+                                                                "Bearer"
+                                                        ))
+                                        )));
+
+
     }
 }

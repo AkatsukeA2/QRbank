@@ -1,5 +1,6 @@
 package backend_api.Qrbank.service;
 
+import backend_api.Qrbank.dto.AccountRequestDTO;
 import backend_api.Qrbank.dto.UserRequestDTO;
 import backend_api.Qrbank.dto.UserResponseDTO;
 import backend_api.Qrbank.mapper.UserMapper;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository repository;
     private final RoleRepository roleRepository;
     private final GuardianRepository guardianRepository;
+    private final AccountService accountService;
 
 
 
@@ -48,8 +50,10 @@ public class UserService {
                     if (user.getGuardianID() != null) {
                         return guardianRepository.findById(user.getGuardianID())
                                 .switchIfEmpty(Mono.error(new RuntimeException("Guardian not found")))
+
                                 .then(repository.save(user)
                                         .map(UserMapper::toResponseDTO));
+
                     }
 
                     return repository.save(user)

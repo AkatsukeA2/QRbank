@@ -2,7 +2,11 @@ package backend_api.Qrbank.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record AuthRegisterRequestDTO(
 
@@ -21,7 +25,10 @@ public record AuthRegisterRequestDTO(
         String lastName,
 
         @NotBlank(message = "phone number is required")
-        String phoneNumber
+        String phoneNumber,
+
+        @NotNull(message = "phone number is required")
+        LocalDate age
 
 ) {
 }
