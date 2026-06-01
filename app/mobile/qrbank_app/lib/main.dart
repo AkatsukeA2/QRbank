@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8B6FD4)),
         useMaterial3: true,
       ),
-      initialRoute: "/login",
+      initialRoute: "/home",
       routes: {
         '/register': (context) => const RegisterScreen(),
         '/': (context) => const SplashScreen(),
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         "/accounts": (context) => const AccountScreen(),
         "/transfer": (context) => const TransferScreen(),
         "/extract": (context) => const ExtratoScreen(),
-        "/transactions": (context) => const TransacoesScreen(),
+        "/transactions": (context) => const TransactionsScreen(),
         "/qrcode": (context) => const QrCodeScreen(),
         "/help": (context) => const HelpScreen(),    
       },

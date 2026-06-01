@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserService {
   final String _httpUrl = 'http://192.168.122.1:8080/api/users';
+  final String _updateUrl = 'http://192.168.122.1:8080/api/users';
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   User? _currentUser;

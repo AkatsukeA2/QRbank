@@ -1,129 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:qrbank_app/model/mapper/transactions_mapper.dart';
 import 'package:qrbank_app/model/transaction.dart';
 import 'package:qrbank_app/model/tx_item.dart';
 import 'package:qrbank_app/services/transaction_service.dart';
 import 'package:qrbank_app/services/user_service.dart';
 
-class TransacoesScreen extends StatefulWidget {
-  const TransacoesScreen({super.key});
+class TransactionsScreen extends StatefulWidget {
+  const TransactionsScreen({Key? key}) : super(key: key);
 
   @override
-  State<TransacoesScreen> createState() => _TransacoesScreenState();
+  State<TransactionsScreen> createState() => _TransactionScreenState();
 }
 
-class _TransacoesScreenState extends State<TransacoesScreen> {
+class _TransactionScreenState extends State<TransactionsScreen> {
   int _filterIndex = 0;
-   bool isLoading = false;
+  bool isLoading = false;
   final List<String> _filters = ['Todos', 'Entradas', 'Saídas'];
   List<Transaction> _transactions = [];
+  List<TxGroup> _allGroups = []; // <-- dinâmico, não final
 
-  
+  @override
+  void initState() {
+    super.initState();
+  }
 
-// Adicione o método de carregamento
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_transactions.isEmpty) {
+      _loadTransactions();
+    }
+  }
+
   Future<void> _loadTransactions() async {
-     setState(() => isLoading = true);
+    setState(() => isLoading = true);
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
 
     try {
       final transactions =
           await TransactionService().getTransactionsByUserId(args['id']);
-      setState(() => _transactions = transactions);
-    } catch (e) {
-      setState(() => _transactions = []);
-    } finally {
-       setState(() => isLoading = false);
+
+      // Agrupa por data
+      final Map<String, List<Transaction>> grouped = {};
+      for (final tx in transactions) {
+        final dateKey = '${tx.createdAt.day.toString().padLeft(2, '0')} / '
+            '${tx.createdAt.month.toString().padLeft(2, '0')} / '
+            '${tx.createdAt.year}';
+        grouped.putIfAbsent(dateKey, () => []).add(tx);
       }
+
+      setState(() {
+        _transactions = transactions;
+        _allGroups = grouped.entries
+            .map((e) => TxGroup(label: e.key, transactions: e.value))
+            .toList();
+      });
+    } catch (e) {
+      setState(() {
+        _transactions = [];
+        _allGroups = [];
+      });
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
-  final List<TxGroup> _allGroups = [
-    TxGroup(label: 'Hoje, ${DateTime.now().day.toString()} ${DateTime.now().month.toString()}', transactions: ),
-    /*TxGroup(label: '09 Mai', transactions: [
-      TxItem(
-        icon: Icons.diamond_outlined,
-        iconBg: Color(0xFFEDE8F8),
-        iconFg: Color(0xFF7B5FC4),
-        title: 'Recebimento Pix de Ana Lima',
-        subtitle: 'Pix',
-        amount: 'R\$ +300,00',
-        isCredit: true,
-        date: '16:55',
-      ),
-      TxItem(
-        icon: Icons.local_pharmacy_outlined,
-        iconBg: Color(0xFFE8F5E9),
-        iconFg: Color(0xFF43A047),
-        title: 'Farmácia Popular',
-        subtitle: 'Saúde',
-        amount: 'R\$ -38,50',
-        isCredit: false,
-        date: '10:30',
-      ),
-      TxItem(
-        icon: Icons.directions_bus_outlined,
-        iconBg: Color(0xFFE3F2FD),
-        iconFg: Color(0xFF1976D2),
-        title: 'Transporte Público',
-        subtitle: 'Mobilidade',
-        amount: 'R\$ -9,60',
-        isCredit: false,
-        date: '07:48',
-      ),
-    ]),
-    TxGroup(label: '08 Mai', transactions: [
-      TxItem(
-        icon: Icons.movie_outlined,
-        iconBg: Color(0xFFF3E5F5),
-        iconFg: Color(0xFF8E24AA),
-        title: 'Netflix',
-        subtitle: 'Entretenimento',
-        amount: 'R\$ -39,90',
-        isCredit: false,
-        date: '03:00',
-      ),
-      TxItem(
-        icon: Icons.swap_horiz_rounded,
-        iconBg: Color(0xFFFCE4EC),
-        iconFg: Color(0xFFE91E63),
-        title: 'TED para Carlos Mendes',
-        subtitle: 'Transferência',
-        amount: 'R\$ -500,00',
-        isCredit: false,
-        date: '14:22',
-      ),
-    ]),
-    TxGroup(label: '07 Mai', transactions: [
-      TxItem(
-        icon: Icons.shopping_bag_outlined,
-        iconBg: Color(0xFFFFF3E0),
-        iconFg: Color(0xFFEF6C00),
-        title: 'Americanas',
-        subtitle: 'Compras',
-        amount: 'R\$ -129,00',
-        isCredit: false,
-        date: '15:10',
-      ),
-      TxItem(
-        icon: Icons.work_outline_rounded,
-        iconBg: Color(0xFFE8F5E9),
-        iconFg: Color(0xFF4CAF50),
-        title: 'Freelance Design',
-        subtitle: 'Receita',
-        amount: 'R\$ +800,00',
-        isCredit: true,
-        date: '09:05',
-      ),
-    ]),
-  ];*/
 
   List<TxGroup> get _filtered {
     if (_filterIndex == 0) return _allGroups;
     return _allGroups
         .map((g) {
           final txs = g.transactions.where((tx) {
-            if (_filterIndex == 1) return tx.isCredit;
-            return !tx.isCredit;
+            if (_filterIndex == 1) return tx.type == 'CREDIT';
+            return tx.type != 'CREDIT';
           }).toList();
           if (txs.isEmpty) return null;
           return TxGroup(label: g.label, transactions: txs);
@@ -132,24 +80,14 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         .toList();
   }
 
-  // Totais do filtro atual
-  double get _totalEntradas => _allGroups
-      .expand((g) => g.transactions)
-      .where((tx) => tx.isCredit)
-      .fold(0, (sum, tx) {
-    final v =
-        double.tryParse(tx.amount.replaceAll('R\$ +', '').replaceAll('.', '').replaceAll(',', '.')) ?? 0;
-    return sum + v;
-  });
+  // Totais direto das transações — amount vem como número da API
+  double get _totalEntradas => _transactions
+      .where((tx) => tx.type == 'CREDIT')
+      .fold(0, (sum, tx) => sum + (double.tryParse(tx.amount) ?? 0));
 
-  double get _totalSaidas => _allGroups
-      .expand((g) => g.transactions)
-      .where((tx) => !tx.isCredit)
-      .fold(0, (sum, tx) {
-    final v =
-        double.tryParse(tx.amount.replaceAll('R\$ -', '').replaceAll('.', '').replaceAll(',', '.')) ?? 0;
-    return sum + v;
-  });
+  double get _totalSaidas => _transactions
+      .where((tx) => tx.type != 'CREDIT')
+      .fold(0, (sum, tx) => sum + (double.tryParse(tx.amount) ?? 0));
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +95,12 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5FA),
-      body: SafeArea(
-        child: Column(
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF7B5FC4)),
+            )
+          : SafeArea(
+          child: Column(
           children: [
             // ── Top bar ──────────────────────────────────
             Padding(

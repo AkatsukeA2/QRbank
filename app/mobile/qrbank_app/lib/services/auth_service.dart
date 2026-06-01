@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as _storage;
 import 'package:qrbank_app/model/register.dart';
 import 'package:qrbank_app/model/user.dart';
 
 class AuthService {
+   final FlutterSecureStorage _storage = FlutterSecureStorage();
   final String _loginUrl = 'http://192.168.122.1:8080/api/auth/login';
   final String _registerUrl = 'http://192.168.122.1:8080/api/auth/register';
 
@@ -26,6 +29,11 @@ class AuthService {
     }
 
 
+  }
+
+  Future<void> logout() async {
+    await _storage.delete(key: 'token');
+    await _storage.delete(key: 'currentUser');
   }
 
   Future<Map<String, dynamic>?> register(String email, String password, String name, DateTime age, String phone) async {

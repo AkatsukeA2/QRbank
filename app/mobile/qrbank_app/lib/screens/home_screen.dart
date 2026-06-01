@@ -457,18 +457,24 @@ Future<void> _loadTransactions() async {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, "/transactions");
+                  Navigator.pushNamed(
+                    context,
+                    '/transactions',
+                    arguments: {
+                      // <-- passa os arguments
+                      'id': _userId,
+                      'email': _userEmail,
+                      'name': _userName,
+                    },
+                  );
                 },
                 child: Row(
                   children: const [
-                    Text(
-                      'Ver tudo',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF7B5FC4),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    Text('Ver tudo',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF7B5FC4),
+                            fontWeight: FontWeight.w500)),
                     Icon(Icons.chevron_right_rounded,
                         size: 18, color: Color(0xFF7B5FC4)),
                   ],
@@ -477,29 +483,55 @@ Future<void> _loadTransactions() async {
             ],
           ),
           const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _transactions.length,
-              separatorBuilder: (_, __) => const Divider(
-                height: 1,
-                indent: 60,
-                endIndent: 16,
-                color: Color(0xFFF0EBF8),
+
+          // Loading
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(color: Color(0xFF7B5FC4)),
+            )
+
+          // Lista vazia
+          else if (_transactions.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
               ),
-              itemBuilder: (_, i) => TransactionTile(tx: _transactions[i]),
+              child: const Center(
+                child: Text(
+                  'Nenhuma transação recente.',
+                  style: TextStyle(color: Color(0xFFB0A8C8), fontSize: 14),
+                ),
+              ),
+            )
+
+          // Lista com dados — máximo 5
+          else
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _transactions.length > 5 ? 5 : _transactions.length,
+                separatorBuilder: (_, __) => const Divider(
+                  height: 1,
+                  indent: 60,
+                  endIndent: 16,
+                  color: Color(0xFFF0EBF8),
+                ),
+                itemBuilder: (_, i) => TransactionTile(tx: _transactions[i]),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
-
   // ── Bottom Nav ───────────────────────────────────────────
   Widget _buildBottomNav() {
     const items = [
@@ -525,22 +557,20 @@ Future<void> _loadTransactions() async {
               return GestureDetector(
                onTap: () {
                   setState(() => _currentTab = i);
+                  final args = {
+                    'email': _userEmail,
+                    'name': _userName,
+                    'id': _userId,
+                  };
                   if (i == 0) {
-                    Navigator.pushNamed(context, '/home',
-                    arguments:{
-                     'email': _userEmail,
-                     'name': _userName,
-                     'id': _userId,
-                     },);
-                  } else {
-                    final routes = [
-                      '/home',
-                      '/transactions',
-                      '/help',
-                      '/accounts'
-                      
-                    ];
-                    Navigator.pushNamed(context, routes[i]);
+                    Navigator.pushNamed(context, '/home', arguments: args);
+                  } else if (i == 1) {
+                    Navigator.pushNamed(context, '/transactions',
+                        arguments: args); // <-- args
+                  } else if (i == 2) {
+                    Navigator.pushNamed(context, '/help', arguments: args);
+                  } else if (i == 3) {
+                    Navigator.pushNamed(context, '/accounts', arguments: args);
                   }
                 },
                 behavior: HitTestBehavior.opaque,
