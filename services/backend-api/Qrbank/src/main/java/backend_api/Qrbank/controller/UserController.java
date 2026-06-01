@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/users")
@@ -36,7 +38,7 @@ public class UserController {
         return service.findByUserID(id).map(ResponseEntity::ok);
     }
     // get users by id
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")  // <-- mude para /email/{email}
     public Mono<ResponseEntity<UserResponseDTO>> getByEmail(@PathVariable String email){
         return service.findByUserEmail(email).map(ResponseEntity::ok);
     }
@@ -96,6 +98,26 @@ public class UserController {
                         "francneto745@gmail.com",
                         "Teste QRbank",
                         "O QRbank da-te as boas vindas cliente Bicho neto"
+                )
+                .thenReturn("Email enviado");
+    }
+    @GetMapping("/grid")
+    public Mono<String> grid(
+            @RequestParam String email,
+            @RequestParam String name) {
+        return emailService
+                .sendEmail(email.trim(), "Boas-vindas ao QRbank",
+                        "O QRbank dá-te as boas-vindas, " + name + "!")
+                .thenReturn("Email enviado");
+    }
+
+    @GetMapping("/control")
+    public Mono<String> control(@RequestBody String email, String senderName, String receiverName, BigDecimal amount) {
+        return emailService
+                .sendEmail(
+                        email.trim(),
+                        "Email de Controle",
+                        "Caro Cliente viemos informar que o seu dependente "+senderName+" efetuou uma transação no valor de "+amount+" ao "+receiverName
                 )
                 .thenReturn("Email enviado");
     }
