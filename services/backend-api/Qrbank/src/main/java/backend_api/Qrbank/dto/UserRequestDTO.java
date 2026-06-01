@@ -20,16 +20,16 @@ public record UserRequestDTO(
         @Email
         String email,
 
-        @NotBlank
+        @Nullable
         String password,
 
-        @NotBlank
+        @Nullable
         String phoneNumber,
 
-        @NotNull
+        @Nullable
         Long roleId,
 
-        @NotNull
+        @Nullable
         LocalDate dateOfBirth,
 
         @Nullable
