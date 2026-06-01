@@ -82,6 +82,13 @@ public class UserController {
         return service.updateUserPassWor(id,newPassWord).then(Mono.just(ResponseEntity.noContent().build()));
     }
 
+    //
+    @PatchMapping("/{id}/newEmail")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseEntity<UserResponseDTO>> changeEmail(@PathVariable Long id,@RequestBody String newEmail){
+        return service.updateUserEmail(id,newEmail).then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
     @GetMapping("/test-email")
     public Mono<String> test() {
         return emailService

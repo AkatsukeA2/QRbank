@@ -108,6 +108,18 @@ public class UserService {
                 });
     }
 
+    //update email
+    public Mono<UserResponseDTO> updateUserEmail(Long id, String newEmail){
+        return repository.findById(id).filter(user -> user.getDeletedAt() == null)
+                .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
+                .flatMap(user -> {
+
+                    user.setEmail(newEmail);
+                    user.setUpdatedAt(LocalDateTime.now());
+                    return repository.save(user).map(UserMapper::toResponseDTO);
+                });
+    }
+
     // soft delete
     public Mono<Void> softDelete(Long id){
         return repository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("User not found")))
