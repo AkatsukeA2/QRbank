@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qrbank_app/services/user_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -8,8 +9,11 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  final TextEditingController _emailController =
-      TextEditingController(text: 'seu.email@exemplo.com');
+  String _userName = 'Usuário';
+  String _userEmail = '';
+  String _userId = '';
+ final TextEditingController _emailController =
+      TextEditingController(text: UserService().currentUser?.name);
   bool _emailEditing = false;
 
   @override
@@ -17,6 +21,26 @@ class _AccountScreenState extends State<AccountScreen> {
     _emailController.dispose();
     super.dispose();
   }
+
+  String _showName() {
+      final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    String email = args?['email'] ?? '';
+    String name = args?['name'] ?? 'Usuário';
+    String id = args?['id'] ?? '';
+    
+    return name;
+   }
+
+  String _showEmail() {
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    String email = args?['email'] ?? '';
+
+    return email;
+  }   
 
   void _showDeleteDialog() {
     showDialog(
@@ -53,6 +77,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5FA),
       body: SafeArea(
@@ -159,17 +184,17 @@ class _AccountScreenState extends State<AccountScreen> {
                     const SizedBox(height: 14),
 
                     // Nome e e-mail
-                    const Text(
-                      'Seu Nome Completo',
-                      style: TextStyle(
+                    Text(
+                      _showName(),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF1A1A2E),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'seu.email@exemplo.com',
+                     Text(
+                      _showEmail(),
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFF7B5FC4),

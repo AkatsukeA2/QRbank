@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:qrbank_app/model/transaction.dart';
+import 'package:qrbank_app/services/account_service.dart';
+import 'package:qrbank_app/services/transaction_service.dart';
+import 'package:qrbank_app/services/user_service.dart';
 import 'package:qrbank_app/widgets/action_button.dart';
+import 'package:qrbank_app/widgets/transaction_tile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,53 +17,124 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
   bool _balanceVisible = true;
+  String _userName = 'Usuário';
+  String _userEmail = '';
+  String _userId = '';
+  bool isLoading = false;
+  String _balance = 'R\$ 0,00'; // <-- adicione
 
-  final List<_Transaction> _transactions = const [
-    _Transaction(
-      index: 1,
-      title: 'Supermercado Dia',
-      subtitle: 'Groceries',
-      amount: 'R\$ -189,50',
-      date: '14 Mai',
-      isCredit: false,
-      iconColor: Color(0xFFFFF3E0),
-      iconFgColor: Color(0xFFFF9800),
-      icon: Icons.shopping_cart_outlined,
-    ),
-    _Transaction(
-      index: 2,
-      title: 'Transferência para Maria Silva',
-      subtitle: 'Senta',
-      amount: 'R\$ -450,00',
-      date: '13 Mai',
-      isCredit: false,
-      iconColor: Color(0xFFFCE4EC),
-      iconFgColor: Color(0xFFE91E63),
-      icon: Icons.swap_horiz_rounded,
-    ),
-    _Transaction(
-      index: 3,
-      title: 'Recebido de Tech Corp',
-      subtitle: 'Salario',
-      amount: 'R\$ +5.200,00',
-      date: '12 Mai',
-      isCredit: true,
-      iconColor: Color(0xFFE8F5E9),
-      iconFgColor: Color(0xFF4CAF50),
-      icon: Icons.work_outline_rounded,
-    ),
-    _Transaction(
-      index: 4,
-      title: 'Posto de Combustível',
-      subtitle: 'Gas',
-      amount: 'R\$ -210,30',
-      date: '11 Mai',
-      isCredit: false,
-      iconColor: Color(0xFFFFEBEE),
-      iconFgColor: Color(0xFFF44336),
-      icon: Icons.local_gas_station_outlined,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _loadBalance() async {
+    setState(() => isLoading = true);
+    try {
+      final account =
+          await AccountService().getAccountByEmail(_userEmail); // <-- await
+      setState(() => _balance = account?.balance.toString() ?? 'R\$ 0,00');
+    } catch (e) {
+      setState(() => _balance = 'R\$ --');
+    } finally {
+      setState(() => isLoading = false); // <-- agora executa no momento certo
+    }
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null) {
+      final email = args['email'] ?? '';
+      final name = args['name'] ?? 'Usuário';
+      final id = args['id'] ?? '';
+
+      // Só recarrega se o email mudou
+      if (email != _userEmail) {
+        setState(() {
+          _userName = name;
+          _userEmail = email;
+          _userId = id;
+        });
+        _loadBalance();
+        _loadTransactions();  // <-- aqui, depois de ter o email
+      }
+    }
+  }
+
+
+  void _genarateAndShowQR() {
+    final qrdata = {
+      'receiver': _userId,
+    };
+    final qrString = qrdata.toString(); // Simplesmente converte o mapa para string
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Seu QR Code',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF3D2B7A),
+              ),
+            ),
+            const SizedBox(height: 24),
+            QrImageView(
+              data: qrString, 
+              version: QrVersions.auto,
+              size: 220,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: Color(0xFF7B5FC4), // roxo do seu app
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: Color(0xFF3D2B7A),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _userEmail,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF9990B0),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  
+
+  // Troque a lista estática por dinâmica
+List<Transaction> _transactions = [];
+
+// Adicione o método de carregamento
+Future<void> _loadTransactions() async {
+  try {
+    final transactions = await TransactionService()
+        .getTransactionsByUserId(_userId);
+    setState(() => _transactions = transactions);
+  } catch (e) {
+    setState(() => _transactions = []);
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,16 +172,16 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Saudação
           RichText(
-            text: const TextSpan(
-              style: TextStyle(color: Color(0xFF1A1A2E)),
+            text: TextSpan(
+              style: const TextStyle(color: Color(0xFF1A1A2E)),
               children: [
-                TextSpan(
+                const TextSpan(
                   text: 'Olá,\n',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
                 ),
                 TextSpan(
-                  text: 'Obed Jorge!',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                  text: _userName,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                 ),
               ],
             ),
@@ -150,16 +227,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(width: 10),
-              CircleAvatar(
-                radius: 21,
-                backgroundColor: const Color(0xFFD0C4F0),
-                child: ClipOval(
-                  child: Container(
-                    width: 42,
-                    height: 42,
-                    color: const Color(0xFFB8A8E8),
-                    child: const Icon(Icons.person,
-                        color: Colors.white, size: 24),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, "/accounts"),
+                child: CircleAvatar(
+                  radius: 21,
+                  backgroundColor: const Color(0xFFD0C4F0),
+                  child: ClipOval(
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      color: const Color(0xFFB8A8E8),
+                      child: const Icon(Icons.person,
+                          color: Colors.white, size: 24),
+                    ),
                   ),
                 ),
               ),
@@ -196,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -208,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -244,7 +324,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: Text(
-                    _balanceVisible ? 'R\$ 12.458,70' : 'R\$ ••••••',
+                    _balanceVisible?
+                          _balance  
+                     : 'R\$ ••••••',
                     key: ValueKey(_balanceVisible),
                     style: const TextStyle(
                       color: Colors.white,
@@ -254,17 +336,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Cartão Virtual: **** 5678',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
                 const SizedBox(height: 4),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => Navigator.pushNamed(context, "/accounts"),
                   child: const Text(
                     'Acessar Conta',
                     style: TextStyle(
@@ -318,7 +392,9 @@ class _HomeScreenState extends State<HomeScreen> {
           // Botão Escanear QR centralizado
           Center(
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                _genarateAndShowQR();
+              },
               child: Container(
                 width: 80,
                 height: 80,
@@ -331,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF7B5FC4).withOpacity(0.35),
+                      color: const Color(0xFF7B5FC4).withValues(alpha: 0.35),
                       blurRadius: 18,
                       offset: const Offset(0, 6),
                     ),
@@ -416,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 endIndent: 16,
                 color: Color(0xFFF0EBF8),
               ),
-              itemBuilder: (_, i) => _TransactionTile(tx: _transactions[i]),
+              itemBuilder: (_, i) => TransactionTile(tx: _transactions[i]),
             ),
           ),
         ],
@@ -447,14 +523,26 @@ class _HomeScreenState extends State<HomeScreen> {
             children: List.generate(items.length, (i) {
               final isActive = i == _currentTab;
               return GestureDetector(
-                onTap: () =>{
-
-                   setState(() => _currentTab = i),
-                    if(i == 0) Navigator.pushReplacementNamed(context, "/home"),
-                    if(i == 1) Navigator.pushNamed(context, "/transactions"),
-                    if(i == 2) Navigator.pushNamed(context, "/help"),
-                    if(i == 3) Navigator.pushNamed(context, "/accounts"),
-                   },
+               onTap: () {
+                  setState(() => _currentTab = i);
+                  if (i == 0) {
+                    Navigator.pushNamed(context, '/home',
+                    arguments:{
+                     'email': _userEmail,
+                     'name': _userName,
+                     'id': _userId,
+                     },);
+                  } else {
+                    final routes = [
+                      '/home',
+                      '/transactions',
+                      '/help',
+                      '/accounts'
+                      
+                    ];
+                    Navigator.pushNamed(context, routes[i]);
+                  }
+                },
                 behavior: HitTestBehavior.opaque,
                 child: SizedBox(
                   width: 70,
@@ -507,119 +595,5 @@ class _HomeScreenState extends State<HomeScreen> {
 // ── Widgets auxiliares ───────────────────────────────────────
 
 
-class _Transaction {
-  final int index;
-  final String title;
-  final String subtitle;
-  final String amount;
-  final String date;
-  final bool isCredit;
-  final Color iconColor;
-  final Color iconFgColor;
-  final IconData icon;
 
-  const _Transaction({
-    required this.index,
-    required this.title,
-    required this.subtitle,
-    required this.amount,
-    required this.date,
-    required this.isCredit,
-    required this.iconColor,
-    required this.iconFgColor,
-    required this.icon,
-  });
-}
 
-class _TransactionTile extends StatelessWidget {
-  final _Transaction tx;
-  const _TransactionTile({required this.tx});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          // Número
-          SizedBox(
-            width: 20,
-            child: Text(
-              '${tx.index}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFFB0A8C8),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-
-          // Ícone
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: tx.iconColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(tx.icon, size: 20, color: tx.iconFgColor),
-          ),
-          const SizedBox(width: 12),
-
-          // Título + subtítulo
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tx.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A2E),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  tx.subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFFB0A8C8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Valor + data
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                tx.amount,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: tx.isCredit
-                      ? const Color(0xFF2E7D32)
-                      : const Color(0xFF1A1A2E),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                tx.date,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFFB0A8C8),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}

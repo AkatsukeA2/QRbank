@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:qrbank_app/model/mapper/transactions_mapper.dart';
+import 'package:qrbank_app/model/transaction.dart';
+import 'package:qrbank_app/model/tx_item.dart';
+import 'package:qrbank_app/services/transaction_service.dart';
+import 'package:qrbank_app/services/user_service.dart';
 
 class TransacoesScreen extends StatefulWidget {
   const TransacoesScreen({super.key});
@@ -9,87 +14,33 @@ class TransacoesScreen extends StatefulWidget {
 
 class _TransacoesScreenState extends State<TransacoesScreen> {
   int _filterIndex = 0;
+   bool isLoading = false;
   final List<String> _filters = ['Todos', 'Entradas', 'Saídas'];
+  List<Transaction> _transactions = [];
 
-  final List<_TxGroup> _allGroups = [
-    _TxGroup(label: 'Hoje, 12 Mai', transactions: [
-      _TxItem(
-        icon: Icons.shopping_cart_outlined,
-        iconBg: Color(0xFFFFF3E0),
-        iconFg: Color(0xFFFF9800),
-        title: 'Supermercado Dia',
-        subtitle: 'Groceries',
-        amount: 'R\$ -189,50',
-        isCredit: false,
-        date: '14:32',
-      ),
-      _TxItem(
-        icon: Icons.diamond_outlined,
-        iconBg: Color(0xFFEDE8F8),
-        iconFg: Color(0xFF7B5FC4),
-        title: 'Recebimento Pix',
-        subtitle: 'João Pedro',
-        amount: 'R\$ +320,00',
-        isCredit: true,
-        date: '09:10',
-      ),
-    ]),
-    _TxGroup(label: 'Ontem, 11 Mai', transactions: [
-      _TxItem(
-        icon: Icons.swap_horiz_rounded,
-        iconBg: Color(0xFFFCE4EC),
-        iconFg: Color(0xFFE91E63),
-        title: 'Transferência para Maria Silva',
-        subtitle: 'Pix',
-        amount: 'R\$ -450,00',
-        isCredit: false,
-        date: '18:05',
-      ),
-      _TxItem(
-        icon: Icons.local_gas_station_outlined,
-        iconBg: Color(0xFFFFEBEE),
-        iconFg: Color(0xFFF44336),
-        title: 'Posto de Combustível',
-        subtitle: 'Gas',
-        amount: 'R\$ -210,30',
-        isCredit: false,
-        date: '13:47',
-      ),
-      _TxItem(
-        icon: Icons.work_outline_rounded,
-        iconBg: Color(0xFFE8F5E9),
-        iconFg: Color(0xFF4CAF50),
-        title: 'Recebido de Tech Corp',
-        subtitle: 'Salário',
-        amount: 'R\$ +5.200,00',
-        isCredit: true,
-        date: '08:00',
-      ),
-    ]),
-    _TxGroup(label: '10 Mai', transactions: [
-      _TxItem(
-        icon: Icons.barcode_reader,
-        iconBg: Color(0xFFE3F2FD),
-        iconFg: Color(0xFF1E88E5),
-        title: 'Pagamento de Boleto Luz',
-        subtitle: 'Conta de Energia',
-        amount: 'R\$ -180,00',
-        isCredit: false,
-        date: '11:20',
-      ),
-      _TxItem(
-        icon: Icons.restaurant_outlined,
-        iconBg: Color(0xFFFFF8E1),
-        iconFg: Color(0xFFFFC107),
-        title: 'iFood',
-        subtitle: 'Alimentação',
-        amount: 'R\$ -62,90',
-        isCredit: false,
-        date: '20:15',
-      ),
-    ]),
-    _TxGroup(label: '09 Mai', transactions: [
-      _TxItem(
+  
+
+// Adicione o método de carregamento
+  Future<void> _loadTransactions() async {
+     setState(() => isLoading = true);
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+
+    try {
+      final transactions =
+          await TransactionService().getTransactionsByUserId(args['id']);
+      setState(() => _transactions = transactions);
+    } catch (e) {
+      setState(() => _transactions = []);
+    } finally {
+       setState(() => isLoading = false);
+      }
+  }
+  final List<TxGroup> _allGroups = [
+    TxGroup(label: 'Hoje, ${DateTime.now().day.toString()} ${DateTime.now().month.toString()}', transactions: ),
+    /*TxGroup(label: '09 Mai', transactions: [
+      TxItem(
         icon: Icons.diamond_outlined,
         iconBg: Color(0xFFEDE8F8),
         iconFg: Color(0xFF7B5FC4),
@@ -99,7 +50,7 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         isCredit: true,
         date: '16:55',
       ),
-      _TxItem(
+      TxItem(
         icon: Icons.local_pharmacy_outlined,
         iconBg: Color(0xFFE8F5E9),
         iconFg: Color(0xFF43A047),
@@ -109,7 +60,7 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         isCredit: false,
         date: '10:30',
       ),
-      _TxItem(
+      TxItem(
         icon: Icons.directions_bus_outlined,
         iconBg: Color(0xFFE3F2FD),
         iconFg: Color(0xFF1976D2),
@@ -120,8 +71,8 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         date: '07:48',
       ),
     ]),
-    _TxGroup(label: '08 Mai', transactions: [
-      _TxItem(
+    TxGroup(label: '08 Mai', transactions: [
+      TxItem(
         icon: Icons.movie_outlined,
         iconBg: Color(0xFFF3E5F5),
         iconFg: Color(0xFF8E24AA),
@@ -131,7 +82,7 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         isCredit: false,
         date: '03:00',
       ),
-      _TxItem(
+      TxItem(
         icon: Icons.swap_horiz_rounded,
         iconBg: Color(0xFFFCE4EC),
         iconFg: Color(0xFFE91E63),
@@ -142,8 +93,8 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         date: '14:22',
       ),
     ]),
-    _TxGroup(label: '07 Mai', transactions: [
-      _TxItem(
+    TxGroup(label: '07 Mai', transactions: [
+      TxItem(
         icon: Icons.shopping_bag_outlined,
         iconBg: Color(0xFFFFF3E0),
         iconFg: Color(0xFFEF6C00),
@@ -153,7 +104,7 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         isCredit: false,
         date: '15:10',
       ),
-      _TxItem(
+      TxItem(
         icon: Icons.work_outline_rounded,
         iconBg: Color(0xFFE8F5E9),
         iconFg: Color(0xFF4CAF50),
@@ -164,9 +115,9 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
         date: '09:05',
       ),
     ]),
-  ];
+  ];*/
 
-  List<_TxGroup> get _filtered {
+  List<TxGroup> get _filtered {
     if (_filterIndex == 0) return _allGroups;
     return _allGroups
         .map((g) {
@@ -175,9 +126,9 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
             return !tx.isCredit;
           }).toList();
           if (txs.isEmpty) return null;
-          return _TxGroup(label: g.label, transactions: txs);
+          return TxGroup(label: g.label, transactions: txs);
         })
-        .whereType<_TxGroup>()
+        .whereType<TxGroup>()
         .toList();
   }
 
@@ -385,7 +336,7 @@ class _TransacoesScreenState extends State<TransacoesScreen> {
                                   color: Color(0xFFF0EBF8),
                                 ),
                                 itemBuilder: (_, ti) =>
-                                    _TxTile(tx: group.transactions[ti]),
+                                    TxTile(tx: group.transactions[ti]),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -432,7 +383,7 @@ class _SummaryCard extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 16, color: color),
@@ -462,104 +413,3 @@ class _SummaryCard extends StatelessWidget {
 
 // ── Modelos ───────────────────────────────────────────────────
 
-class _TxGroup {
-  final String label;
-  final List<_TxItem> transactions;
-  const _TxGroup({required this.label, required this.transactions});
-}
-
-class _TxItem {
-  final IconData icon;
-  final Color iconBg;
-  final Color iconFg;
-  final String title;
-  final String subtitle;
-  final String amount;
-  final bool isCredit;
-  final String date;
-
-  const _TxItem({
-    required this.icon,
-    required this.iconBg,
-    required this.iconFg,
-    required this.title,
-    required this.subtitle,
-    required this.amount,
-    required this.isCredit,
-    required this.date,
-  });
-}
-
-// ── Tile ──────────────────────────────────────────────────────
-
-class _TxTile extends StatelessWidget {
-  final _TxItem tx;
-  const _TxTile({required this.tx});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          children: [
-            // Ícone
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: tx.iconBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(tx.icon, size: 20, color: tx.iconFg),
-            ),
-            const SizedBox(width: 12),
-
-            // Texto
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tx.title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '${tx.subtitle}  •  ${tx.date}',
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFFB0A8C8)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-
-            // Valor
-            Text(
-              tx.amount,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: tx.isCredit
-                    ? const Color(0xFF2E7D32)
-                    : const Color(0xFF1A1A2E),
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded,
-                size: 16, color: Color(0xFFB0A8C8)),
-          ],
-        ),
-      ),
-    );
-  }
-}

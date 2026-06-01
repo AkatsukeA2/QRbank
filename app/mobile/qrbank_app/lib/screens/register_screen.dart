@@ -14,16 +14,152 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
+  bool isLoading = false;
+  static const currentYear = 2026;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _password1Controller = TextEditingController();
   final TextEditingController _password2Controller = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+
+   @override
+  void dispose() {
+    _emailController.dispose();
+    _password1Controller.dispose();
+    _password2Controller.dispose();
+    _ageController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  int _calcularIdade(String dataNascimento) {
+    try {
+      final partes = dataNascimento.split('/');
+      final nascimento = DateTime(
+        int.parse(partes[0]), // ano
+        int.parse(partes[1]), // mês
+        int.parse(partes[2]), // dia
+      );
+      final hoje = DateTime.now();
+      int idade = hoje.year - nascimento.year;
+      if (hoje.month < nascimento.month ||
+          (hoje.month == nascimento.month && hoje.day < nascimento.day)) {
+        idade--;
+      }
+      return idade;
+    } catch (_) {
+      return -1; // data inválida
+    }
+  }
+
+      void _submeter() {
+    final email = _emailController.text.trim();
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final password1 = _password1Controller.text.trim();
+    final password2 = _password2Controller.text.trim();
+    final birthDateStr = _ageController.text.trim();
+
+    if (email.isEmpty ||
+        name.isEmpty ||
+        phone.isEmpty ||
+        password1.isEmpty ||
+        password2.isEmpty ||
+        birthDateStr.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preencha todos os campos.'),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+      return;
+    }
+
+    if (password1 != password2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('As senhas não coincidem.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    final idade = _calcularIdade(birthDateStr);
+    if (idade == -1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Data de nascimento inválida. Use AAAA/MM/DD.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    final birthDate = DateTime.parse(birthDateStr.replaceAll('/', '-'));
+
+    if (idade < 18) {
+      Navigator.of(context).pushNamed(
+        '/register/guardians',
+        arguments: {
+          'email': email,
+          'password': password1,
+          'name': name,
+          'birthDate': birthDate,
+          'phone': phone,
+        },
+      );
+      return;
+    }
+
+    _cadastrar(email, password1, name, birthDate, phone);
+  }
+
+  void _cadastrar(String email, String password, String name,
+      DateTime birthDate, String phone) {
+    setState(() => isLoading = true); 
+
+    AuthService()
+        .register(email, password, name, birthDate, phone)
+        .then((result) {
+      if (result?['tokenType'] == 'Bearer') {
+        UserService().getUserByEmail(email).then((user) {
+          if (user != null) UserService().setCurrentUser(user);
+        });
+        Navigator.of(context).pushReplacementNamed(
+          '/home',
+          arguments: {
+            'email': email,
+            'name': UserService().currentUser?.name,
+             'id': UserService().currentUser?.id,
+          },
+          );
+      } else {
+        setState(() => isLoading = false); 
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao cadastrar. Tente novamente.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }).catchError((_) {
+      setState(() => isLoading = false); 
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro de conexão. Tente novamente.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    });
+  }
   
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5FA),
       body: SafeArea(
@@ -283,7 +419,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: lógica de registro
+                    /* TODO: lógica de registro
                     if (_password1Controller != _password2Controller) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -298,6 +434,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     final phone = _phoneController.text.trim();
                     final password = _password2Controller.text.trim();
                     final age =_ageController;
+                    // calcular idade
+
+                    final age2 = age as DateTime;
+                    currentYear - age2.year < 18? print("é maior de idade"):  Navigator.of(context).pushReplacementNamed('/register/guardians');
+
+
                     AuthService().register(email, password, name, age as DateTime, phone ).then((result) {
                       if (result?['tokenType'] == 'Bearer') {
                         // Login bem-sucedido, navegar para a tela principal
@@ -317,7 +459,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         );
                       }
                     });
-
+                      */
+                    _submeter();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7B5FC4),

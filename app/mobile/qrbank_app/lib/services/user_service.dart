@@ -5,8 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserService {
-  final String _httpUrl = 'http://localhost:8080/api/users';
+  final String _httpUrl = 'http://192.168.122.1:8080/api/users';
   final FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  User? _currentUser;
+  User? get currentUser => _currentUser;
   Future<User?> getUserByEmail(String email) async {
     final response = await http.get(
       Uri.parse('$_httpUrl?email=$email'),
@@ -26,5 +29,25 @@ class UserService {
   final JsonString = jsonEncode(user.toJson());
    _storage.write(key: 'currentUser', value: JsonString);
    await _storage.write(key: 'user', value: JsonString);
+  
+   _currentUser = user;
+
+  
+  }
+
+   Future<User?> loadCurrentUser() async {
+    final jsonString = await _storage.read(key: 'currentUser');
+    if (jsonString != null) {
+      _currentUser = User.fromJson(jsonDecode(jsonString));
+      return _currentUser;
+    }
+    return null;
+  }
+
+  Future<void> clearCurrentUser() async {
+    _currentUser = null;
+    await _storage.delete(key: 'currentUser');
+    await _storage.delete(key: 'user');
+    await _storage.delete(key: 'token');
   }
 }

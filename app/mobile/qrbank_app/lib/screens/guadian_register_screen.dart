@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:qrbank_app/screens/splash_screen%20.dart';
+import 'package:qrbank_app/services/auth_service.dart';
+import 'package:qrbank_app/services/guardian-service.dart';
+import 'package:qrbank_app/services/user_service.dart';
 import 'package:qrbank_app/widgets/requared_lable.dart';
 import 'package:qrbank_app/widgets/top_text_center.dart';
 
@@ -12,10 +15,132 @@ class GuadianRegisterScreen extends StatefulWidget {
 
 class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  static const currentYear = 2026;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _relationController = TextEditingController();
+
+
+int _calcularIdade(String dataNascimento) {
+    try {
+      final partes = dataNascimento.split('/');
+      final nascimento = DateTime(
+        int.parse(partes[0]), // ano
+        int.parse(partes[1]), // mês
+        int.parse(partes[2]), // dia
+      );
+      final hoje = DateTime.now();
+      int idade = hoje.year - nascimento.year;
+      if (hoje.month < nascimento.month ||
+          (hoje.month == nascimento.month && hoje.day < nascimento.day)) {
+        idade--;
+      }
+      return idade;
+    } catch (_) {
+      return -1; // data inválida
+    }
+  }
+  void _submeterComGuardian(String guardianName, String guardianPhone) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+    final name = _nameController.text;
+    final email = _emailController.text;
+    final phone= _phoneController.text;
+    final relation= _relationController.text;
+    final age= _ageController.text;
+
+     if (email.isEmpty ||
+        name.isEmpty ||
+        phone.isEmpty ||
+        relation.isEmpty ||
+        age.isEmpty
+        ) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preencha todos os campos.'),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+      return;
+    }
+
+    final idade = _calcularIdade(age);
+    if (idade == -1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Data de nascimento inválida. Use AAAA/MM/DD.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+     if (idade < 18) {
+     ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('O guardian deve ser maior de idade '),
+          backgroundColor: Colors.redAccent,
+        ),
+        
+      );
+      return;
+    }
+
+    setState(() {
+        _isLoading = true;
+    });
+    // Cadastra o usuário menor
+    GuardianService().registeGuardian(
+      name,
+      email,
+      phone,
+      relation,
+    ).then((result) {
+        if (result == null) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erro ao cadastrar o guardião. Tente novamente.'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+          return;
+        };
+        AuthService().register(args['email'], args['password'], args['name'], args['birthDate'], args['phone']).then((result) {
+          if (result == null) {
+            setState(() {
+              _isLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Erro ao cadastrar o usuário. Tente novamente.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+            return;
+          };
+        });
+        Navigator.of(context).pushReplacementNamed(
+          '/home',
+          arguments: {
+            'email': args['email'],
+            'name': args['name'],
+             'id': UserService().currentUser?.id,
+
+          },
+        );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       backgroundColor: const Color(0xFFF5F5FA),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -34,6 +159,7 @@ class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
               RequaredLable(text: 'Digite o nome'),
               const SizedBox(height: 8),
               TextField(
+                controller: _nameController,
                 keyboardType: TextInputType.name,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -66,6 +192,7 @@ class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
               const SizedBox(height: 8),
               RequaredLable(text: 'Digite o email'),
               TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -98,6 +225,7 @@ class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
               const SizedBox(height: 8),
               RequaredLable(text: 'Digite o Nº telefone'),
               TextField(
+                controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -128,9 +256,9 @@ class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
                 ),
               ),
               SizedBox(height: 8),
-
               const RequaredLable(text: 'Imforme a data de nascimento'),
               TextField(
+                controller: _ageController,
                 keyboardType: TextInputType.datetime,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -161,9 +289,9 @@ class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-
               const RequaredLable(text: 'Imforme o grau de parentesco'),
               TextField(
+                controller: _relationController,
                 keyboardType: TextInputType.text,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
@@ -194,13 +322,13 @@ class _GuadianRegisterScreenState extends State<GuadianRegisterScreen> {
                 ),
               ),
               SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
                     // TODO: lógica de login
+                    _submeterComGuardian(_nameController.text, _phoneController.text);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7B5FC4),

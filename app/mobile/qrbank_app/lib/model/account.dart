@@ -35,4 +35,18 @@ class Account {
           json['deletedAt'] != null ? DateTime.parse(json['deletedAt']) : null,
     );
   }
+
+  Object? toJson() {
+    return {
+      'id': id,
+      'accountNumber': accountNumber,
+      'iban': iban,
+      'balance': balance,
+      'currency': currency,
+      'isActive': isActive,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'deletedAt': deletedAt?.toIso8601String(),
+    };
+  }
 }
