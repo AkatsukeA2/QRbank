@@ -51,4 +51,17 @@ class UserService {
     await _storage.delete(key: 'user');
     await _storage.delete(key: 'token');
   }
+
+  Future<void> updateUser({required String userId, required String name, required String email}) async {
+    final newName = name.split(' ');
+    final response = await http.put(
+      Uri.parse('$_updateUrl/$userId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'firstName': newName[0], 'lastName': newName[1], 'email': email}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user');
+    }
+  }
 }

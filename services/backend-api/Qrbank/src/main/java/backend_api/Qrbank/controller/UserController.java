@@ -55,7 +55,7 @@ public class UserController {
     }
 
     //soft delete
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseEntity<UserResponseDTO>> softDelete(@PathVariable Long id){
         return service.softDelete(id).then(Mono.just(ResponseEntity.noContent().build()));
