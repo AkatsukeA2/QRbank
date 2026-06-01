@@ -64,4 +64,12 @@ class UserService {
       throw Exception('Failed to update user');
     }
   }
+
+  Future<void> deleteUser(String userId) async {
+   final response = await http.patch(
+      Uri.parse('$_httpUrl?id=$userId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+  }
 }

@@ -40,7 +40,9 @@ class Transaction {
       id: json['id'],
       amount: json['amount'],
       createdAt: DateTime.parse(json['createdAt']),
-      type: json['TransactionType '],
+      type: (json['TransactionType'] ?? json['TransactionType '] ?? '')
+          .toString()
+          .trim(),
       status: json['TransactionStatus'],
       senderId: json['senderAccountId'],
       receiverId: json['receiverAccountId'],

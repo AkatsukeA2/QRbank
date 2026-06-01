@@ -28,6 +28,45 @@ class TransactionService {
       return [];
     }
   }
+  Future<bool> transfer({
+    required String senderId,
+    required String receiverId,
+    required String amount,
+  }) async {
+    try {
+      final token = await _storage.read(key: 'token');
+
+      // 1. Busca a conta do receptor pelo userId
+      final accountResponse = await http.get(
+        Uri.parse('http://192.168.122.1:8080/api/accounts/user/$receiverId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (accountResponse.statusCode != 200) return false;
+
+      final accountData = jsonDecode(accountResponse.body);
+      final receiverAccountId = accountData['id']; // Long da conta
+
+      // 2. Faz a transferência
+      final response = await http.post(
+        Uri.parse('$_httpUrl/$senderId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'amount': double.parse(amount.replaceAll(',', '.')),
+          'type': 'DEBIT',
+          'receiverAccountID': receiverAccountId,
+          'reference': null,
+        }),
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      return false;
+    }
+
+  }
    Future<void> setCurrentAccount(Transaction transaction) async {
     // Lógica para armazenar o usuário atual na aplicação, por exemplo, usando SharedPreferences ou um gerenciador de estado
     final JsonString = jsonEncode(transaction.toJson());
