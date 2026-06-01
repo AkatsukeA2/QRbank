@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:qrbank_app/model/account.dart';
 
 class AccountService {
-    final String _httpUrl = 'http://192.168.122.1:8080/api/accounts';
+    final String _httpUrl = 'http://192.168.37.245:8080/api/accounts';
     final FlutterSecureStorage _storage = FlutterSecureStorage();
 
     Future<Account?> getAccountByEmail(String email) async {

@@ -117,27 +117,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _cadastrar(email, password1, name, birthDate, phone);
   }
 
-  void _cadastrar(String email, String password, String name,
-      DateTime birthDate, String phone) {
-    setState(() => isLoading = true); 
+ void _cadastrar(String email, String password, String name,
+      DateTime birthDate, String phone) async {
+    setState(() => isLoading = true);
+    try {
+      final result =
+          await AuthService().register(email, password, name, birthDate, phone);
 
-    AuthService()
-        .register(email, password, name, birthDate, phone)
-        .then((result) {
       if (result?['tokenType'] == 'Bearer') {
-        UserService().getUserByEmail(email).then((user) {
-          if (user != null) UserService().setCurrentUser(user);
+        final user = await UserService().getUserByEmail(email);
+        if (user != null) await UserService().setCurrentUser(user);
+
+        // Envia email de saudação
+        await UserService().sendWelcomeEmail(email: email, name: name);
+
+        Navigator.of(context).pushReplacementNamed('/home', arguments: {
+          'email': email,
+          'name': name,
+          'id': user?.id ?? '',
         });
-        Navigator.of(context).pushReplacementNamed(
-          '/home',
-          arguments: {
-            'email': email,
-            'name': UserService().currentUser?.name,
-             'id': UserService().currentUser?.id,
-          },
-          );
       } else {
-        setState(() => isLoading = false); 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erro ao cadastrar. Tente novamente.'),
@@ -145,17 +144,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       }
-    }).catchError((_) {
-      setState(() => isLoading = false); 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro de conexão. Tente novamente.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    });
-  }
-  
+    } finally {
+      setState(() => isLoading = false);
+    }
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const RequaredLable(text: 'Imforme sua data de nascimento'),
               TextField(
                 controller: _ageController,
-                keyboardType: TextInputType.datetime,
+                keyboardType: TextInputType.text,
                 style: const TextStyle(fontSize: 15, color: Color(0xFF3D2B7A)),
                 decoration: InputDecoration(
                   hintText: 'AAAA/MM/DD',

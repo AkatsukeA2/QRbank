@@ -43,22 +43,22 @@ int _calcularIdade(String dataNascimento) {
       return -1; // data inválida
     }
   }
-  void _submeterComGuardian(String guardianName, String guardianPhone) {
+  Future<void> _submeter() async {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
-    final name = _nameController.text;
-    final email = _emailController.text;
-    final phone= _phoneController.text;
-    final relation= _relationController.text;
-    final age= _ageController.text;
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
+    final relation = _relationController.text.trim();
+    final age = _ageController.text.trim();
 
-     if (email.isEmpty ||
+    // Validações
+    if (email.isEmpty ||
         name.isEmpty ||
         phone.isEmpty ||
         relation.isEmpty ||
-        age.isEmpty
-        ) {
+        age.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Preencha todos os campos.'),
@@ -79,65 +79,88 @@ int _calcularIdade(String dataNascimento) {
       return;
     }
 
-     if (idade < 18) {
-     ScaffoldMessenger.of(context).showSnackBar(
+    if (idade < 18) {
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('O guardian deve ser maior de idade '),
+          content: Text('O guardião deve ser maior de idade.'),
           backgroundColor: Colors.redAccent,
         ),
-        
       );
       return;
     }
 
-    setState(() {
-        _isLoading = true;
-    });
-    // Cadastra o usuário menor
-    GuardianService().registeGuardian(
-      name,
-      email,
-      phone,
-      relation,
-    ).then((result) {
-        if (result == null) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Erro ao cadastrar o guardião. Tente novamente.'),
-              backgroundColor: Colors.redAccent,
-            ),
-          );
-          return;
-        };
-        AuthService().register(args['email'], args['password'], args['name'], args['birthDate'], args['phone']).then((result) {
-          if (result == null) {
-            setState(() {
-              _isLoading = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Erro ao cadastrar o usuário. Tente novamente.'),
-                backgroundColor: Colors.redAccent,
-              ),
-            );
-            return;
-          };
-        });
-        Navigator.of(context).pushReplacementNamed(
-          '/home',
-          arguments: {
-            'email': args['email'],
-            'name': args['name'],
-             'id': UserService().currentUser?.id,
+    setState(() => _isLoading = true);
 
-          },
+    try {
+      // 1. Cadastra o guardião
+      final guardian = await GuardianService().registeGuardian(
+        name,
+        email,
+        phone,
+        relation,
+      );
+
+      if (guardian == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao cadastrar o guardião.'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
-    });
-  }
+        return;
+      }
 
+      // 2. Cadastra o usuário menor
+      final result = await AuthService().register(
+        args['email'],
+        args['password'],
+        args['name'],
+        args['birthDate'],
+        args['phone'],
+      );
+
+      if (result == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao cadastrar o usuário.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
+
+      // 3. Busca o usuário cadastrado para pegar o ID
+      final user = await UserService().getUserByEmail(args['email']);
+      if (user != null) {
+        await UserService().setCurrentUser(user);
+      }
+
+      // 4. Envia email de saudação
+      await UserService().sendWelcomeEmail(
+        email: args['email'],
+        name: args['name'],
+      );
+
+      // 5. Navega para home
+      Navigator.of(context).pushReplacementNamed(
+        '/home',
+        arguments: {
+          'email': args['email'],
+          'name': args['name'],
+          'id': user?.id ?? '',
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro inesperado. Tente novamente.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -326,10 +349,7 @@ int _calcularIdade(String dataNascimento) {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: lógica de login
-                    _submeterComGuardian(_nameController.text, _phoneController.text);
-                  },
+                 onPressed: _isLoading ? null : _submeter,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7B5FC4),
                     foregroundColor: Colors.white,

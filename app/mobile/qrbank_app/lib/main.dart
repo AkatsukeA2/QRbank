@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8B6FD4)),
         useMaterial3: true,
       ),
-      initialRoute: "/home",
+      initialRoute: "/",
       routes: {
         '/register': (context) => const RegisterScreen(),
         '/': (context) => const SplashScreen(),

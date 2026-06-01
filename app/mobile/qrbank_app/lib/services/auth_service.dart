@@ -7,8 +7,8 @@ import 'package:qrbank_app/model/user.dart';
 
 class AuthService {
    final FlutterSecureStorage _storage = FlutterSecureStorage();
-  final String _loginUrl = 'http://192.168.122.1:8080/api/auth/login';
-  final String _registerUrl = 'http://192.168.122.1:8080/api/auth/register';
+  final String _loginUrl = 'http://192.168.37.245:8080/api/auth/login';
+  final String _registerUrl = 'http://192.168.37.245:8080/api/auth/register';
 
   Future<Map<String, dynamic>?> login(String email, String password) async {
     final response = await http.post(
@@ -37,10 +37,20 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>?> register(String email, String password, String name, DateTime age, String phone) async {
-    final newName = name.split('');
-    Register register = new Register(email: email, password: password, firtName: newName[0], lastName: newName[newName.length], phone: phone, dateOfBirth: age);
+    final parts = name.trim().split(' ');
+
+    final firstName = parts.isNotEmpty ? parts[0] : '';
+    final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+    Register register = Register(
+      email: email,
+      password: password,
+      firtName: firstName,
+      lastName: lastName,
+      phone: phone,
+      dateOfBirth: age,
+    );
     final response = await http.post(
-      Uri.parse('$_loginUrl'),
+      Uri.parse(_registerUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(register),
     );

@@ -2,7 +2,8 @@ import 'dart:ffi';
 
 class User {
   final String id;
-  final String name;
+  final String firstName;
+  final String lastName;
   final String email;
   final String phone;
   final String password;
@@ -23,7 +24,8 @@ class User {
 
   User({
     required this.id,
-    required this.name,
+    required this.firstName,
+    required this.lastName,
     required this.email,
     required this.phone,
     required this.password,
@@ -44,7 +46,8 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
-      name: json['name'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
       email: json['email'],
       phone: json['phone'],
       password: json['password'],
@@ -72,7 +75,8 @@ class User {
   Object? toJson() {
     return {
       'id': id,
-      'name': name,
+      'firstName': firstName,
+      'lasstName': lastName,
       'email': email,
       'phone': phone,
       'password': password,

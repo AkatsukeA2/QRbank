@@ -217,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             arguments: {
                               'email': email,
                               'name':
-                                  UserService().currentUser?.name,
+                                  UserService().currentUser!.firstName +' '+UserService().currentUser!.lastName,
                               'id': UserService().currentUser?.id,
                             },
                           );
@@ -332,7 +332,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
-                              // TODO: navegar para cadastro
+                              
                               Navigator.of(context).pushReplacementNamed(
                                 '/register',
                                 // MaterialPageRoute(builder: (_) => const LoginScreen()), --- IGNORE ---

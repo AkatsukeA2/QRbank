@@ -5,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserService {
-  final String _httpUrl = 'http://192.168.122.1:8080/api/users';
-  final String _updateUrl = 'http://192.168.122.1:8080/api/users';
+  final String _httpUrl = 'http://192.168.37.245:8080/api/users';
+  final String _updateUrl = 'http://192.168.37.245:8080/api/users';
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   User? _currentUser;
@@ -50,6 +50,20 @@ class UserService {
     await _storage.delete(key: 'currentUser');
     await _storage.delete(key: 'user');
     await _storage.delete(key: 'token');
+  }
+  Future<void> sendWelcomeEmail({
+    required String email,
+    required String name,
+  }) async {
+    try {
+      final token = await _storage.read(key: 'token');
+      await http.get(
+        Uri.parse('$_httpUrl/grid?email=$email&name=$name'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+    } catch (_) {
+      // email falhou mas não bloqueia o fluxo
+    }
   }
 
   Future<void> updateUser({required String userId, required String name, required String email}) async {

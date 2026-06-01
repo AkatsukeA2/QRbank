@@ -38,7 +38,7 @@ class TransactionService {
 
       // 1. Busca a conta do receptor pelo userId
       final accountResponse = await http.get(
-        Uri.parse('http://192.168.122.1:8080/api/accounts/user/$receiverId'),
+        Uri.parse('http://192.168.37.245:8080/api/accounts/user/$receiverId'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
