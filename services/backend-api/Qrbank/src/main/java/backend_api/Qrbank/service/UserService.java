@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Collections;
 
 @Service
 @AllArgsConstructor
@@ -72,6 +73,16 @@ public class UserService {
         return repository.findByEmail(email).filter(user -> user.getDeletedAt() == null)
                 .switchIfEmpty(Mono.error(new RuntimeException("USer not found"))).map(UserMapper::toResponseDTO);
     }
+
+    public Flux<UserResponseDTO> findByGuardianId(Long id) {
+        return repository.findAllByGuardianId(id)
+                .filter(user -> user.getDeletedAt() == null)
+                .map(UserMapper::toResponseDTO)
+                .switchIfEmpty(
+                        Flux.error(new RuntimeException("No dependents found"))
+                );
+    }
+
 
     // find all users
     public Flux<UserResponseDTO> findAllUser(){

@@ -28,11 +28,7 @@ public class Role {
     protected LocalDateTime createdAt;
 
     @NotBlank
-    @Column("updated_at")
-    protected LocalDateTime updatedAt;
-
-    @NotBlank
-    @Column("deleted_at")
+    @Column("delete_at")
     protected LocalDateTime deletedAt;
 
     @Column("role_name")

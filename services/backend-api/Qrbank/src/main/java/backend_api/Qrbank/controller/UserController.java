@@ -16,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -36,6 +37,20 @@ public class UserController {
     @GetMapping("/{id}")
     public Mono<ResponseEntity<UserResponseDTO>> getByID(@PathVariable Long id){
         return service.findByUserID(id).map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/dependents/{guardianId}")
+    public Mono<ResponseEntity<List<UserResponseDTO>>> getByGuardianID(
+            @PathVariable Long guardianId) {
+
+        return service.findByGuardianId(guardianId)
+                .collectList()
+                .flatMap(list -> {
+                    if (list.isEmpty()) {
+                        return Mono.just(ResponseEntity.notFound().build());
+                    }
+                    return Mono.just(ResponseEntity.ok(list));
+                });
     }
     // get users by id
     @GetMapping("/email/{email}")  // <-- mude para /email/{email}
